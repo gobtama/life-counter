@@ -1,31 +1,183 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewpoint" content="width=device-width, initial-scale=1.0">
 
-    <tital>人生カウンター</tital>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f4f1eb">
+  <title>人生カウンター</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+  <main class="container">
+    <header class="header">
+      <h1>人生カウンター</h1>
+      <p class="subtitle">あなたの人生、あと何回？</p>
+    </header>
 
-    <h1>人生カウンター</h1>
+    <section class="input-panel">
+      <label>あなたの生年月日</label>
 
-    <p>あなたの人生、あと何回？</p>
+      <div class="birthdate-selects">
+        <select id="birthYear" aria-label="生まれた年">
+          <option value="">年</option>
+        </select>
 
-    <label for="birthdate">生年月日</label>
-    <input type="date" id="birthdate">
+        <select id="birthMonth" aria-label="生まれた月">
+          <option value="">月</option>
+        </select>
 
-    <button id="countButton">カウントする</button>
-    <p id="lifeProgress"></p>
-    <p id="elapsedDays"></p>
-    <p id="cherryBlossoms"></p>
-    <p id="fullMoons"></p>
-    <p id="halley"></p>
-    <p id="saturdays"></p>
-    <p id="mornings"></p>
-    <p id="birthdays"></p>
+        <select id="birthDay" aria-label="生まれた日">
+          <option value="">日</option>
+        </select>
+      </div>
 
-    <script src="script.js"></script>
+      <button id="countButton">人生を数えてみる</button>
+    </section>
+
+    <section id="results" class="results">
+      <section id="shareCard" class="share-card">
+        <section class="life-summary">
+          <p class="summary-label">80歳までの人生</p>
+
+          <div class="progress-number">
+            <span id="lifeProgress">0.0</span><span class="percent">%</span>
+          </div>
+
+          <div class="progress-track">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+
+          <p id="elapsedDays"></p>
+        </section>
+
+        <div class="section-heading">
+          <h2>あと、何回？</h2>
+          <p>いつもの景色も、数えると少し違って見える。</p>
+        </div>
+
+        <section class="counter-grid">
+          <article class="counter-card cherry">
+            <span class="counter-icon">🌸</span>
+            <button class="info-button" type="button" aria-label="桜の説明">?</button>
+
+            <div class="counter-content">
+              <p class="counter-name">桜の季節</p>
+              <p class="counter-number"><span id="cherryBlossoms">0</span><span>回</span></p>
+            </div>
+
+            <div class="counter-info">
+              3月20日〜4月30日を桜の季節として数えています。
+            </div>
+          </article>
+
+          <article class="counter-card moon">
+            <span class="counter-icon">🌕</span>
+            <button class="info-button" type="button" aria-label="満月の説明">?</button>
+
+            <div class="counter-content">
+              <p class="counter-name">満月</p>
+              <p class="counter-number"><span id="fullMoons">0</span><span>回</span></p>
+            </div>
+
+            <div class="counter-info">
+              満月の周期を約29.5日として概算しています。
+            </div>
+          </article>
+
+          <article class="counter-card halley">
+            <span class="counter-icon">☄️</span>
+            <button class="info-button" type="button" aria-label="ハレー彗星の説明">?</button>
+
+            <div class="counter-content">
+              <p class="counter-name">ハレー彗星</p>
+              <p class="counter-number"><span id="halley">0</span><span>回</span></p>
+            </div>
+
+            <div class="counter-info">
+              次回のハレー彗星の近日点通過予測を基準に数えています。
+            </div>
+          </article>
+
+          <article class="counter-card saturday">
+            <span class="counter-icon">📅</span>
+            <button class="info-button" type="button" aria-label="土曜日の説明">?</button>
+
+            <div class="counter-content">
+              <p class="counter-name">土曜日</p>
+              <p class="counter-number"><span id="saturdays">0</span><span>回</span></p>
+            </div>
+
+            <div class="counter-info">
+              今日から80歳になる日までの土曜日を数えています。
+            </div>
+          </article>
+
+          <article class="counter-card morning">
+            <span class="counter-icon">🌅</span>
+            <button class="info-button" type="button" aria-label="朝の説明">?</button>
+
+            <div class="counter-content">
+              <p class="counter-name">朝を迎える</p>
+              <p class="counter-number"><span id="mornings">0</span><span>回</span></p>
+            </div>
+
+            <div class="counter-info">
+              80歳までの残り日数を、これから迎える朝の回数として概算しています。
+            </div>
+          </article>
+
+          <article class="counter-card birthday">
+            <span class="counter-icon">🎂</span>
+            <button class="info-button" type="button" aria-label="誕生日の説明">?</button>
+
+            <div class="counter-content">
+              <p class="counter-name">誕生日</p>
+              <p class="counter-number"><span id="birthdays">0</span><span>回</span></p>
+            </div>
+
+            <div class="counter-info">
+              今年以降、80歳の誕生日までを含めて数えています。
+            </div>
+          </article>
+        </section>
+
+        <p class="note">※ 80歳まで生きると仮定した、おおよその回数です。</p>
+      </section>
+
+      <section class="share-area">
+        <p class="share-title">この結果、どうする？</p>
+
+        <div class="share-buttons">
+          <button id="xShareButton" class="secondary-button" type="button">
+            Xでシェア
+          </button>
+
+          <button id="imageButton" class="secondary-button" type="button">
+            結果を画像にする
+          </button>
+        </div>
+
+        <p id="shareMessage" class="share-message"></p>
+      </section>
+    </section>
+  </main>
+
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+      <p class="loading-title">あと何回<br>あるんだろう。</p>
+
+      <div class="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="script.js"></script>
 </body>
+
 </html>

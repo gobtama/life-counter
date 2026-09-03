@@ -16,6 +16,8 @@ const progressFill = document.getElementById("progressFill");
 const results = document.getElementById("results");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const xShareButton = document.getElementById("xShareButton");
+const lineShareButton = document.getElementById("lineShareButton");
+const instagramShareButton = document.getElementById("instagramShareButton");
 const imageButton = document.getElementById("imageButton");
 const shareMessage = document.getElementById("shareMessage");
 
@@ -271,17 +273,30 @@ function getShareText() {
   );
 }
 
+function getAppUrl() {
+  return window.location.origin + window.location.pathname;
+}
+
 function shareToX() {
   const text = getShareText();
   const url =
     "https://twitter.com/intent/tweet?text=" +
-    encodeURIComponent(text);
+    encodeURIComponent(text) +
+    "&url=" +
+    encodeURIComponent(getAppUrl());
 
   window.open(
     url,
     "_blank",
     "noopener,noreferrer"
   );
+}
+
+function shareToLine() {
+  const message = getShareText() + "\n\n" + getAppUrl();
+  const url = "https://line.me/R/share?text=" + encodeURIComponent(message);
+
+  window.location.href = url;
 }
 
 function drawRoundedRect(context, x, y, width, height, radius) {
@@ -441,7 +456,7 @@ async function createShareCanvas() {
   return canvas;
 }
 
-async function createResultImage() {
+async function createResultImage(preferredTarget = "generic") {
 
   imageButton.disabled = true;
   imageButton.textContent = "画像を作成中…";
@@ -469,13 +484,23 @@ async function createResultImage() {
         navigator.canShare({ files: [file] })
       ) {
         try {
-          await navigator.share({
-            files: [file],
-            title: "人生カウンター",
-            text: "人生カウンターの結果"
-          });
+          const shareData = { files: [file] };
 
-          shareMessage.textContent = "結果画像を共有しました。";
+          if (preferredTarget !== "instagram") {
+            shareData.title = "人生カウンター";
+            shareData.text = "人生カウンターの結果\n" + getAppUrl();
+          }
+
+          if (preferredTarget === "instagram") {
+            shareMessage.textContent = "共有先からInstagramを選んでください。";
+          }
+
+          await navigator.share(shareData);
+
+          shareMessage.textContent =
+            preferredTarget === "instagram"
+              ? "Instagramへの共有画面を開きました。"
+              : "結果画像を共有しました。";
         } catch (error) {
           if (error.name !== "AbortError") {
             shareMessage.textContent = "共有をキャンセルしました。";
@@ -504,7 +529,16 @@ async function createResultImage() {
 
 function resetImageButton() {
   imageButton.disabled = false;
-  imageButton.textContent = "結果を画像にする";
+  instagramShareButton.disabled = false;
+  imageButton.textContent = "画像を保存・共有";
+  instagramShareButton.textContent = "Instagramでシェア";
+}
+
+async function shareToInstagram() {
+  instagramShareButton.disabled = true;
+  instagramShareButton.textContent = "画像を作成中…";
+
+  await createResultImage("instagram");
 }
 
 function setupInfoButtons() {
@@ -536,7 +570,11 @@ birthYear.addEventListener("change", updateDayOptions);
 birthMonth.addEventListener("change", updateDayOptions);
 countButton.addEventListener("click", handleCountClick);
 xShareButton.addEventListener("click", shareToX);
-imageButton.addEventListener("click", createResultImage);
+lineShareButton.addEventListener("click", shareToLine);
+instagramShareButton.addEventListener("click", shareToInstagram);
+imageButton.addEventListener("click", function () {
+  createResultImage();
+});
 
 createBirthdateOptions();
 setupInfoButtons();

@@ -404,6 +404,16 @@ select {
   transform: scale(0.98);
 }
 
+.line-button {
+  border-color: #06c755;
+  color: #068b3e;
+}
+
+.instagram-button {
+  border-color: #c13584;
+  color: #a52d75;
+}
+
 .share-message {
   min-height: 18px;
   margin: 10px 2px 0;

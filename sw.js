@@ -1,4 +1,4 @@
-const CACHE_NAME = "life-counter-v6";
+const CACHE_NAME = "life-counter-v7";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -8,7 +8,13 @@ const APP_SHELL = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
-  "./icons/favicon-48.png"
+  "./icons/favicon-48.png",
+  "./images/cherry.jpg",
+  "./images/moon.jpg",
+  "./images/halley.jpg",
+  "./images/saturday.jpg",
+  "./images/morning.jpg",
+  "./images/birthday.jpg"
 ];
 
 self.addEventListener("install", function (event) {

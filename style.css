@@ -483,12 +483,7 @@ select {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: rgba(238, 243, 247, 0.68);
-}
-
-/* 明るい桜の写真だけ、白いベールを薄くして絵柄を残す */
-.cherry::after {
-  background: rgba(238, 243, 247, 0.34);
+  background: rgba(238, 243, 247, 0.58);
 }
 
 .counter-icon {
@@ -529,27 +524,27 @@ select {
 /* 写真 */
 
 .cherry {
-  --card-image: url("images/cherry.png");
+  --card-image: url("images/cherry.jpg");
 }
 
 .moon {
-  --card-image: url("images/moon.png");
+  --card-image: url("images/moon.jpg");
 }
 
 .halley {
-  --card-image: url("images/halley.png");
+  --card-image: url("images/halley.jpg");
 }
 
 .saturday {
-  --card-image: url("images/saturday.png");
+  --card-image: url("images/saturday.jpg");
 }
 
 .morning {
-  --card-image: url("images/morning.png");
+  --card-image: url("images/morning.jpg");
 }
 
 .birthday {
-  --card-image: url("images/birthday.png");
+  --card-image: url("images/birthday.jpg");
 }
 
 /* 写真の位置を個別調整 */
@@ -576,13 +571,6 @@ select {
 
 .birthday::before {
   background-position: center 52%;
-}
-
-/* 暗い写真は少し白を強く */
-
-.moon::after,
-.halley::after {
-  background: rgba(238, 243, 247, 0.73);
 }
 
 /* 説明ボタン */

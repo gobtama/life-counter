@@ -393,6 +393,14 @@ imageButton.addEventListener("click", createResultImage);
 createBirthdateOptions();
 setupInfoButtons();
 
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js").catch(function (error) {
+      console.error("Service Workerの登録に失敗しました。", error);
+    });
+  });
+}
+
 if (savedBirthdate !== null) {
   const parts = savedBirthdate.split("-");
 

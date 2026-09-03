@@ -42,6 +42,41 @@
       <button id="countButton">人生を数えてみる</button>
     </section>
 
+    <section class="event-panel" aria-labelledby="eventHeading">
+      <div class="event-heading">
+        <div>
+          <p class="event-kicker">MY COUNTDOWN</p>
+          <h2 id="eventHeading">自分だけの予定</h2>
+        </div>
+        <span class="event-heading-icon" aria-hidden="true">＋</span>
+      </div>
+
+      <p class="event-description">試験や旅行、記念日までの日数も数えられます。</p>
+
+      <form id="eventForm" class="event-form">
+        <label for="eventName">予定の名前</label>
+        <input id="eventName" name="eventName" type="text" maxlength="40" placeholder="例：資格試験" required>
+
+        <label for="eventDate">予定の日付</label>
+        <input id="eventDate" name="eventDate" type="date" required>
+
+        <label class="yearly-option">
+          <input id="eventYearly" name="eventYearly" type="checkbox">
+          <span>毎年くり返す（記念日など）</span>
+        </label>
+
+        <div class="event-form-actions">
+          <button id="saveEventButton" class="event-save-button" type="submit">予定を追加</button>
+          <button id="cancelEditButton" class="event-cancel-button" type="button" hidden>編集をやめる</button>
+        </div>
+
+        <p id="eventFormMessage" class="event-form-message" role="status"></p>
+      </form>
+
+      <div id="eventList" class="event-list"></div>
+      <p class="event-storage-note">予定はこの端末内だけに保存されます。</p>
+    </section>
+
     <section id="results" class="results">
       <section id="shareCard" class="share-card">
         <section class="life-summary">

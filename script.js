@@ -20,9 +20,294 @@ const lineShareButton = document.getElementById("lineShareButton");
 const instagramShareButton = document.getElementById("instagramShareButton");
 const imageButton = document.getElementById("imageButton");
 const shareMessage = document.getElementById("shareMessage");
+const eventForm = document.getElementById("eventForm");
+const eventName = document.getElementById("eventName");
+const eventDate = document.getElementById("eventDate");
+const eventYearly = document.getElementById("eventYearly");
+const saveEventButton = document.getElementById("saveEventButton");
+const cancelEditButton = document.getElementById("cancelEditButton");
+const eventFormMessage = document.getElementById("eventFormMessage");
+const eventList = document.getElementById("eventList");
 
 const savedBirthdate = localStorage.getItem("birthdate");
 const oneDayMs = 1000 * 60 * 60 * 24;
+const eventsStorageKey = "lifeCounterEvents";
+let editingEventId = null;
+let customEvents = loadCustomEvents();
+
+function loadCustomEvents() {
+  try {
+    const storedEvents = JSON.parse(localStorage.getItem(eventsStorageKey) || "[]");
+
+    if (!Array.isArray(storedEvents)) {
+      return [];
+    }
+
+    return storedEvents.filter(function (event) {
+      return (
+        event &&
+        typeof event.id === "string" &&
+        typeof event.name === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(event.date)
+      );
+    });
+  } catch (error) {
+    console.error("予定を読み込めませんでした。", error);
+    return [];
+  }
+}
+
+function saveCustomEvents() {
+  localStorage.setItem(eventsStorageKey, JSON.stringify(customEvents));
+}
+
+function createEventId() {
+  if (crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+function parseLocalDate(dateText) {
+  const parts = dateText.split("-").map(Number);
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+function startOfToday() {
+  const today = new Date();
+  return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+}
+
+function getNextEventDate(event, today) {
+  const originalDate = parseLocalDate(event.date);
+
+  if (!event.yearly) {
+    return originalDate;
+  }
+
+  const month = originalDate.getMonth();
+  const day = originalDate.getDate();
+  let year = today.getFullYear();
+
+  while (year <= today.getFullYear() + 8) {
+    const candidate = new Date(year, month, day);
+    const isSameDate = candidate.getMonth() === month && candidate.getDate() === day;
+
+    if (isSameDate && candidate >= today) {
+      return candidate;
+    }
+
+    year++;
+  }
+
+  return originalDate;
+}
+
+function formatEventDate(event, targetDate) {
+  if (event.yearly) {
+    return (
+      "毎年 " +
+      (targetDate.getMonth() + 1) +
+      "月" +
+      targetDate.getDate() +
+      "日"
+    );
+  }
+
+  return (
+    targetDate.getFullYear() +
+    "年" +
+    (targetDate.getMonth() + 1) +
+    "月" +
+    targetDate.getDate() +
+    "日"
+  );
+}
+
+function getCountdownLabel(daysLeft) {
+  if (daysLeft < 0) {
+    return "終了";
+  }
+
+  if (daysLeft === 0) {
+    return "今日";
+  }
+
+  return "あと" + daysLeft.toLocaleString() + "日";
+}
+
+function createEventActionButton(label, className, eventId) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "event-action-button " + className;
+  button.dataset.eventId = eventId;
+  button.textContent = label;
+  return button;
+}
+
+function renderCustomEvents() {
+  eventList.replaceChildren();
+
+  if (customEvents.length === 0) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "event-empty";
+    emptyMessage.textContent = "予定を追加すると、ここに残り日数が表示されます。";
+    eventList.appendChild(emptyMessage);
+    return;
+  }
+
+  const today = startOfToday();
+  const sortedEvents = customEvents
+    .map(function (event) {
+      const targetDate = getNextEventDate(event, today);
+      const daysLeft = Math.round((targetDate - today) / oneDayMs);
+      return { event, targetDate, daysLeft };
+    })
+    .sort(function (a, b) {
+      const aPast = a.daysLeft < 0;
+      const bPast = b.daysLeft < 0;
+
+      if (aPast !== bPast) {
+        return aPast ? 1 : -1;
+      }
+
+      return a.targetDate - b.targetDate;
+    });
+
+  sortedEvents.forEach(function (item) {
+    const eventItem = document.createElement("article");
+    eventItem.className = "event-item";
+
+    if (item.daysLeft < 0) {
+      eventItem.classList.add("is-past");
+    }
+
+    const details = document.createElement("div");
+    const name = document.createElement("p");
+    const date = document.createElement("p");
+    const countdown = document.createElement("p");
+    const actions = document.createElement("div");
+
+    name.className = "event-item-name";
+    name.textContent = item.event.name;
+    date.className = "event-item-date";
+    date.textContent = formatEventDate(item.event, item.targetDate);
+    countdown.className = "event-countdown";
+    countdown.textContent = getCountdownLabel(item.daysLeft);
+    actions.className = "event-item-actions";
+
+    details.append(name, date);
+    actions.append(
+      createEventActionButton("編集", "event-edit-button", item.event.id),
+      createEventActionButton("削除", "event-delete-button", item.event.id)
+    );
+    eventItem.append(details, countdown, actions);
+    eventList.appendChild(eventItem);
+  });
+}
+
+function resetEventForm(message = "") {
+  eventForm.reset();
+  editingEventId = null;
+  saveEventButton.textContent = "予定を追加";
+  cancelEditButton.hidden = true;
+  eventFormMessage.textContent = message;
+}
+
+function handleEventSubmit(event) {
+  event.preventDefault();
+
+  const name = eventName.value.trim();
+  const date = eventDate.value;
+  const yearly = eventYearly.checked;
+
+  if (name === "" || date === "") {
+    eventFormMessage.textContent = "予定の名前と日付を入力してください。";
+    return;
+  }
+
+  if (!yearly && parseLocalDate(date) < startOfToday()) {
+    eventFormMessage.textContent = "過去の日付は、毎年くり返す予定だけ登録できます。";
+    return;
+  }
+
+  if (editingEventId === null) {
+    customEvents.push({ id: createEventId(), name, date, yearly });
+    saveCustomEvents();
+    renderCustomEvents();
+    resetEventForm("予定を追加しました。");
+    return;
+  }
+
+  customEvents = customEvents.map(function (savedEvent) {
+    if (savedEvent.id !== editingEventId) {
+      return savedEvent;
+    }
+
+    return { ...savedEvent, name, date, yearly };
+  });
+
+  saveCustomEvents();
+  renderCustomEvents();
+  resetEventForm("予定を更新しました。");
+}
+
+function startEventEdit(eventId) {
+  const targetEvent = customEvents.find(function (savedEvent) {
+    return savedEvent.id === eventId;
+  });
+
+  if (!targetEvent) {
+    return;
+  }
+
+  editingEventId = eventId;
+  eventName.value = targetEvent.name;
+  eventDate.value = targetEvent.date;
+  eventYearly.checked = Boolean(targetEvent.yearly);
+  saveEventButton.textContent = "変更を保存";
+  cancelEditButton.hidden = false;
+  eventFormMessage.textContent = "「" + targetEvent.name + "」を編集中です。";
+  eventName.focus();
+}
+
+function deleteCustomEvent(eventId) {
+  const targetEvent = customEvents.find(function (savedEvent) {
+    return savedEvent.id === eventId;
+  });
+
+  if (!targetEvent || !confirm("「" + targetEvent.name + "」を削除しますか？")) {
+    return;
+  }
+
+  customEvents = customEvents.filter(function (savedEvent) {
+    return savedEvent.id !== eventId;
+  });
+
+  saveCustomEvents();
+  renderCustomEvents();
+
+  if (editingEventId === eventId) {
+    resetEventForm();
+  }
+}
+
+function handleEventListClick(event) {
+  const button = event.target.closest("button[data-event-id]");
+
+  if (!button) {
+    return;
+  }
+
+  if (button.classList.contains("event-edit-button")) {
+    startEventEdit(button.dataset.eventId);
+  }
+
+  if (button.classList.contains("event-delete-button")) {
+    deleteCustomEvent(button.dataset.eventId);
+  }
+}
 
 function createBirthdateOptions() {
   const currentYear = new Date().getFullYear();
@@ -575,9 +860,15 @@ instagramShareButton.addEventListener("click", shareToInstagram);
 imageButton.addEventListener("click", function () {
   createResultImage();
 });
+eventForm.addEventListener("submit", handleEventSubmit);
+eventList.addEventListener("click", handleEventListClick);
+cancelEditButton.addEventListener("click", function () {
+  resetEventForm();
+});
 
 createBirthdateOptions();
 setupInfoButtons();
+renderCustomEvents();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {

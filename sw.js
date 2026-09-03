@@ -1,4 +1,4 @@
-const CACHE_NAME = "life-counter-v5";
+const CACHE_NAME = "life-counter-v6";
 const APP_SHELL = [
   "./",
   "./index.html",

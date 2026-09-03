@@ -486,6 +486,11 @@ select {
   background: rgba(238, 243, 247, 0.68);
 }
 
+/* 明るい桜の写真だけ、白いベールを薄くして絵柄を残す */
+.cherry::after {
+  background: rgba(238, 243, 247, 0.34);
+}
+
 .counter-icon {
   position: relative;
   z-index: 1;

@@ -57,13 +57,23 @@
         <label for="eventName">予定の名前</label>
         <input id="eventName" name="eventName" type="text" maxlength="40" placeholder="例：資格試験" required>
 
-        <label for="eventDate">予定の日付</label>
+        <label for="eventDate">予定日／記念日の開始日</label>
         <input id="eventDate" name="eventDate" type="date" required>
 
-        <label class="yearly-option">
-          <input id="eventYearly" name="eventYearly" type="checkbox">
-          <span>毎年くり返す（記念日など）</span>
-        </label>
+        <label for="eventRepeat">くり返し</label>
+        <select id="eventRepeat" name="eventRepeat">
+          <option value="none">くり返さない</option>
+          <option value="monthly">毎月（○か月記念日）</option>
+          <option value="yearly">毎年（○年記念日）</option>
+        </select>
+        <p class="event-input-hint">毎月・毎年の場合は、記念日が始まった日を選んでください。</p>
+
+        <label for="eventImage">カードの背景画像（任意）</label>
+        <input id="eventImage" name="eventImage" type="file" accept="image/*">
+        <div id="eventImagePreview" class="event-image-preview" hidden>
+          <img id="eventImagePreviewPicture" alt="選択した背景画像のプレビュー">
+          <button id="removeEventImageButton" type="button">画像を外す</button>
+        </div>
 
         <div class="event-form-actions">
           <button id="saveEventButton" class="event-save-button" type="submit">予定を追加</button>

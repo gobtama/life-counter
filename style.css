@@ -163,7 +163,8 @@ select {
 }
 
 .event-form input[type="text"],
-.event-form input[type="date"] {
+.event-form input[type="date"],
+.event-form select {
   width: 100%;
   min-height: 50px;
   padding: 0 13px;
@@ -174,25 +175,54 @@ select {
   font: inherit;
 }
 
-.event-form input:focus {
+.event-form input:focus,
+.event-form select:focus {
   border-color: #202020;
   outline: none;
 }
 
-.yearly-option {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 14px;
-  color: #44413d;
-  font-size: 13px;
-  cursor: pointer;
+.event-input-hint {
+  margin: 7px 2px 0;
+  color: #918d85;
+  font-size: 11px;
 }
 
-.yearly-option input {
-  width: 18px;
-  height: 18px;
-  accent-color: #e87558;
+.event-form input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px dashed #bbb5ab;
+  border-radius: 10px;
+  background: #faf8f4;
+  color: #77736c;
+  font-size: 12px;
+}
+
+.event-image-preview {
+  position: relative;
+  height: 130px;
+  overflow: hidden;
+  margin-top: 9px;
+  border-radius: 10px;
+}
+
+.event-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-image-preview button {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: rgba(20, 20, 20, 0.8);
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
 }
 
 .event-form-actions {
@@ -256,10 +286,28 @@ select {
   border: 1px solid #e2ddd4;
   border-radius: 13px;
   background: #faf8f4;
+  background-position: center;
+  background-size: cover;
 }
 
 .event-item.is-past {
   opacity: 0.6;
+}
+
+.event-item.has-background {
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.event-item.has-background .event-item-name,
+.event-item.has-background .event-countdown {
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+.event-item.has-background .event-item-date,
+.event-item.has-background .event-action-button {
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .event-item-name {

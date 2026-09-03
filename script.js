@@ -23,7 +23,11 @@ const shareMessage = document.getElementById("shareMessage");
 const eventForm = document.getElementById("eventForm");
 const eventName = document.getElementById("eventName");
 const eventDate = document.getElementById("eventDate");
-const eventYearly = document.getElementById("eventYearly");
+const eventRepeat = document.getElementById("eventRepeat");
+const eventImage = document.getElementById("eventImage");
+const eventImagePreview = document.getElementById("eventImagePreview");
+const eventImagePreviewPicture = document.getElementById("eventImagePreviewPicture");
+const removeEventImageButton = document.getElementById("removeEventImageButton");
 const saveEventButton = document.getElementById("saveEventButton");
 const cancelEditButton = document.getElementById("cancelEditButton");
 const eventFormMessage = document.getElementById("eventFormMessage");
@@ -33,6 +37,7 @@ const savedBirthdate = localStorage.getItem("birthdate");
 const oneDayMs = 1000 * 60 * 60 * 24;
 const eventsStorageKey = "lifeCounterEvents";
 let editingEventId = null;
+let pendingEventImage = null;
 let customEvents = loadCustomEvents();
 
 function loadCustomEvents() {
@@ -43,14 +48,25 @@ function loadCustomEvents() {
       return [];
     }
 
-    return storedEvents.filter(function (event) {
-      return (
+    return storedEvents
+      .filter(function (event) {
+        return (
         event &&
         typeof event.id === "string" &&
         typeof event.name === "string" &&
         /^\d{4}-\d{2}-\d{2}$/.test(event.date)
-      );
-    });
+        );
+      })
+      .map(function (event) {
+        return {
+          id: event.id,
+          name: event.name,
+          date: event.date,
+          repeat: event.repeat || (event.yearly ? "yearly" : "none"),
+          backgroundImage:
+            typeof event.backgroundImage === "string" ? event.backgroundImage : null
+        };
+      });
   } catch (error) {
     console.error("予定を読み込めませんでした。", error);
     return [];
@@ -79,35 +95,84 @@ function startOfToday() {
   return new Date(today.getFullYear(), today.getMonth(), today.getDate());
 }
 
-function getNextEventDate(event, today) {
-  const originalDate = parseLocalDate(event.date);
-
-  if (!event.yearly) {
-    return originalDate;
-  }
-
-  const month = originalDate.getMonth();
-  const day = originalDate.getDate();
-  let year = today.getFullYear();
-
-  while (year <= today.getFullYear() + 8) {
-    const candidate = new Date(year, month, day);
-    const isSameDate = candidate.getMonth() === month && candidate.getDate() === day;
-
-    if (isSameDate && candidate >= today) {
-      return candidate;
-    }
-
-    year++;
-  }
-
-  return originalDate;
+function createClampedAnniversaryDate(originalDate, year, month) {
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  return new Date(year, month, Math.min(originalDate.getDate(), lastDay));
 }
 
-function formatEventDate(event, targetDate) {
-  if (event.yearly) {
+function getNextEventOccurrence(event, today) {
+  const originalDate = parseLocalDate(event.date);
+
+  if (event.repeat === "none") {
+    return { targetDate: originalDate, count: null };
+  }
+
+  if (event.repeat === "monthly") {
+    let count =
+      (today.getFullYear() - originalDate.getFullYear()) * 12 +
+      today.getMonth() -
+      originalDate.getMonth();
+    count = Math.max(count, 1);
+
+    let targetMonth = originalDate.getMonth() + count;
+    let targetDate = createClampedAnniversaryDate(
+      originalDate,
+      originalDate.getFullYear() + Math.floor(targetMonth / 12),
+      ((targetMonth % 12) + 12) % 12
+    );
+
+    if (targetDate < today) {
+      count++;
+      targetMonth = originalDate.getMonth() + count;
+      targetDate = createClampedAnniversaryDate(
+        originalDate,
+        originalDate.getFullYear() + Math.floor(targetMonth / 12),
+        ((targetMonth % 12) + 12) % 12
+      );
+    }
+
+    return { targetDate, count };
+  }
+
+  let count = Math.max(today.getFullYear() - originalDate.getFullYear(), 1);
+  let targetDate = createClampedAnniversaryDate(
+    originalDate,
+    originalDate.getFullYear() + count,
+    originalDate.getMonth()
+  );
+
+  if (targetDate < today) {
+    count++;
+    targetDate = createClampedAnniversaryDate(
+      originalDate,
+      originalDate.getFullYear() + count,
+      originalDate.getMonth()
+    );
+  }
+
+  return { targetDate, count };
+}
+
+function formatEventDate(event, occurrence) {
+  const targetDate = occurrence.targetDate;
+
+  if (event.repeat === "monthly") {
     return (
-      "毎年 " +
+      occurrence.count +
+      "か月記念日・" +
+      (targetDate.getMonth() + 1) +
+      "月" +
+      targetDate.getDate() +
+      "日"
+    );
+  }
+
+  if (event.repeat === "yearly") {
+    return (
+      occurrence.count +
+      "年記念日・" +
+      targetDate.getFullYear() +
+      "年" +
       (targetDate.getMonth() + 1) +
       "月" +
       targetDate.getDate() +
@@ -160,9 +225,9 @@ function renderCustomEvents() {
   const today = startOfToday();
   const sortedEvents = customEvents
     .map(function (event) {
-      const targetDate = getNextEventDate(event, today);
-      const daysLeft = Math.round((targetDate - today) / oneDayMs);
-      return { event, targetDate, daysLeft };
+      const occurrence = getNextEventOccurrence(event, today);
+      const daysLeft = Math.round((occurrence.targetDate - today) / oneDayMs);
+      return { event, occurrence, daysLeft };
     })
     .sort(function (a, b) {
       const aPast = a.daysLeft < 0;
@@ -172,7 +237,7 @@ function renderCustomEvents() {
         return aPast ? 1 : -1;
       }
 
-      return a.targetDate - b.targetDate;
+      return a.occurrence.targetDate - b.occurrence.targetDate;
     });
 
   sortedEvents.forEach(function (item) {
@@ -181,6 +246,14 @@ function renderCustomEvents() {
 
     if (item.daysLeft < 0) {
       eventItem.classList.add("is-past");
+    }
+
+    if (item.event.backgroundImage) {
+      eventItem.classList.add("has-background");
+      eventItem.style.backgroundImage =
+        "linear-gradient(rgba(20, 20, 20, 0.48), rgba(20, 20, 20, 0.62)), url(\"" +
+        item.event.backgroundImage +
+        "\")";
     }
 
     const details = document.createElement("div");
@@ -192,7 +265,7 @@ function renderCustomEvents() {
     name.className = "event-item-name";
     name.textContent = item.event.name;
     date.className = "event-item-date";
-    date.textContent = formatEventDate(item.event, item.targetDate);
+    date.textContent = formatEventDate(item.event, item.occurrence);
     countdown.className = "event-countdown";
     countdown.textContent = getCountdownLabel(item.daysLeft);
     actions.className = "event-item-actions";
@@ -210,9 +283,76 @@ function renderCustomEvents() {
 function resetEventForm(message = "") {
   eventForm.reset();
   editingEventId = null;
+  pendingEventImage = null;
+  updateEventImagePreview();
   saveEventButton.textContent = "予定を追加";
   cancelEditButton.hidden = true;
   eventFormMessage.textContent = message;
+}
+
+function updateEventImagePreview() {
+  if (!pendingEventImage) {
+    eventImagePreview.hidden = true;
+    eventImagePreviewPicture.removeAttribute("src");
+    return;
+  }
+
+  eventImagePreviewPicture.src = pendingEventImage;
+  eventImagePreview.hidden = false;
+}
+
+function resizeImageToDataUrl(image, maxSize, quality) {
+  const scale = Math.min(maxSize / image.width, maxSize / image.height, 1);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(image.width * scale);
+  canvas.height = Math.round(image.height * scale);
+  canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", quality);
+}
+
+function compressEventImage(file) {
+  return new Promise(function (resolve, reject) {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+
+    image.onload = function () {
+      let dataUrl = resizeImageToDataUrl(image, 900, 0.72);
+
+      if (dataUrl.length > 600000) {
+        dataUrl = resizeImageToDataUrl(image, 700, 0.58);
+      }
+
+      URL.revokeObjectURL(objectUrl);
+      resolve(dataUrl);
+    };
+
+    image.onerror = function () {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("画像を読み込めませんでした。"));
+    };
+
+    image.src = objectUrl;
+  });
+}
+
+async function handleEventImageChange() {
+  const file = eventImage.files[0];
+
+  if (!file) {
+    return;
+  }
+
+  eventFormMessage.textContent = "画像を準備しています…";
+
+  try {
+    pendingEventImage = await compressEventImage(file);
+    updateEventImagePreview();
+    eventFormMessage.textContent = "背景画像を設定しました。";
+  } catch (error) {
+    console.error(error);
+    eventImage.value = "";
+    eventFormMessage.textContent = "この画像は読み込めませんでした。";
+  }
 }
 
 function handleEventSubmit(event) {
@@ -220,21 +360,39 @@ function handleEventSubmit(event) {
 
   const name = eventName.value.trim();
   const date = eventDate.value;
-  const yearly = eventYearly.checked;
+  const repeat = eventRepeat.value;
 
   if (name === "" || date === "") {
     eventFormMessage.textContent = "予定の名前と日付を入力してください。";
     return;
   }
 
-  if (!yearly && parseLocalDate(date) < startOfToday()) {
-    eventFormMessage.textContent = "過去の日付は、毎年くり返す予定だけ登録できます。";
+  if (repeat === "none" && parseLocalDate(date) < startOfToday()) {
+    eventFormMessage.textContent = "過去の日付は、記念日の開始日として登録してください。";
+    return;
+  }
+
+  if (repeat !== "none" && parseLocalDate(date) >= startOfToday()) {
+    eventFormMessage.textContent = "記念日の開始日は、今日より前の日付を選んでください。";
     return;
   }
 
   if (editingEventId === null) {
-    customEvents.push({ id: createEventId(), name, date, yearly });
-    saveCustomEvents();
+    customEvents.push({
+      id: createEventId(),
+      name,
+      date,
+      repeat,
+      backgroundImage: pendingEventImage
+    });
+
+    try {
+      saveCustomEvents();
+    } catch (error) {
+      customEvents.pop();
+      eventFormMessage.textContent = "保存容量が足りません。背景画像を外して試してください。";
+      return;
+    }
     renderCustomEvents();
     resetEventForm("予定を追加しました。");
     return;
@@ -245,10 +403,22 @@ function handleEventSubmit(event) {
       return savedEvent;
     }
 
-    return { ...savedEvent, name, date, yearly };
+    return {
+      ...savedEvent,
+      name,
+      date,
+      repeat,
+      backgroundImage: pendingEventImage
+    };
   });
 
-  saveCustomEvents();
+  try {
+    saveCustomEvents();
+  } catch (error) {
+    customEvents = loadCustomEvents();
+    eventFormMessage.textContent = "保存容量が足りません。背景画像を外して試してください。";
+    return;
+  }
   renderCustomEvents();
   resetEventForm("予定を更新しました。");
 }
@@ -265,7 +435,9 @@ function startEventEdit(eventId) {
   editingEventId = eventId;
   eventName.value = targetEvent.name;
   eventDate.value = targetEvent.date;
-  eventYearly.checked = Boolean(targetEvent.yearly);
+  eventRepeat.value = targetEvent.repeat;
+  pendingEventImage = targetEvent.backgroundImage;
+  updateEventImagePreview();
   saveEventButton.textContent = "変更を保存";
   cancelEditButton.hidden = false;
   eventFormMessage.textContent = "「" + targetEvent.name + "」を編集中です。";
@@ -862,6 +1034,13 @@ imageButton.addEventListener("click", function () {
 });
 eventForm.addEventListener("submit", handleEventSubmit);
 eventList.addEventListener("click", handleEventListClick);
+eventImage.addEventListener("change", handleEventImageChange);
+removeEventImageButton.addEventListener("click", function () {
+  pendingEventImage = null;
+  eventImage.value = "";
+  updateEventImagePreview();
+  eventFormMessage.textContent = "背景画像を外しました。";
+});
 cancelEditButton.addEventListener("click", function () {
   resetEventForm();
 });

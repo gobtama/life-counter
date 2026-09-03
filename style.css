@@ -524,7 +524,7 @@ select {
 /* 写真 */
 
 .cherry {
-  --card-image: url("images/cherry.jpg");
+  --card-image: url("images/cherry.jpg?v=2");
 }
 
 .moon {

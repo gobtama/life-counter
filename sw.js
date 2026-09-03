@@ -1,4 +1,4 @@
-const CACHE_NAME = "life-counter-v7";
+const CACHE_NAME = "life-counter-v8";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -9,7 +9,7 @@ const APP_SHELL = [
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png",
   "./icons/favicon-48.png",
-  "./images/cherry.jpg",
+  "./images/cherry.jpg?v=2",
   "./images/moon.jpg",
   "./images/halley.jpg",
   "./images/saturday.jpg",

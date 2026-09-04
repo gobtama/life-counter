@@ -217,7 +217,7 @@ function renderCustomEvents() {
   if (customEvents.length === 0) {
     const emptyMessage = document.createElement("p");
     emptyMessage.className = "event-empty";
-    emptyMessage.textContent = "予定を追加すると、ここに残り日数が表示されます。";
+    emptyMessage.textContent = "予定はまだありません。";
     eventList.appendChild(emptyMessage);
     return;
   }
@@ -251,7 +251,7 @@ function renderCustomEvents() {
     if (item.event.backgroundImage) {
       eventItem.classList.add("has-background");
       eventItem.style.backgroundImage =
-        "linear-gradient(rgba(238, 243, 247, 0.62), rgba(238, 243, 247, 0.78)), url(\"" +
+        "linear-gradient(rgba(243, 244, 241, 0.62), rgba(243, 244, 241, 0.78)), url(\"" +
         item.event.backgroundImage +
         "\")";
     }
@@ -641,7 +641,7 @@ function calculateLife(data) {
 
   lifeProgressText.textContent = roundedProgress;
   elapsedDaysText.textContent =
-    "すでに約" + elapsedDays.toLocaleString() + "日が経過しました。";
+    "生まれてから約" + elapsedDays.toLocaleString() + "日";
 
   cherryBlossomsText.textContent = cherryBlossomCount.toLocaleString();
   fullMoonsText.textContent = fullMoonCount.toLocaleString();
@@ -683,14 +683,20 @@ function handleCountClick() {
     return;
   }
 
+  loadingOverlay.classList.remove("show");
+  void loadingOverlay.offsetWidth;
   loadingOverlay.classList.add("show");
+  loadingOverlay.setAttribute("aria-hidden", "false");
+  countButton.disabled = true;
 
   setTimeout(function () {
     calculateLife(data);
     results.classList.add("show");
+    loadingOverlay.classList.remove("show");
+    loadingOverlay.setAttribute("aria-hidden", "true");
+    countButton.disabled = false;
 
     setTimeout(function () {
-      loadingOverlay.classList.remove("show");
       revealCards(true);
 
       setTimeout(function () {
@@ -698,9 +704,9 @@ function handleCountClick() {
           behavior: "smooth",
           block: "start"
         });
-      }, 250);
-    }, 250);
-  }, 900);
+      }, 200);
+    }, 180);
+  }, 1400);
 }
 
 function getShareText() {
@@ -798,7 +804,7 @@ async function createShareCanvas() {
   canvas.width = width;
   canvas.height = height;
 
-  context.fillStyle = "#eef3f7";
+  context.fillStyle = "#f3f4f1";
   context.fillRect(0, 0, width, height);
 
   const icon = await loadShareIcon();
@@ -807,17 +813,17 @@ async function createShareCanvas() {
     context.drawImage(icon, padding, 50, 76, 76);
   }
 
-  context.fillStyle = "#101820";
+  context.fillStyle = "#2d312f";
   context.font = "700 44px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.textBaseline = "middle";
   context.fillText("人生カウンター", 158, 78);
 
-  context.fillStyle = "#66717d";
+  context.fillStyle = "#747b78";
   context.font = "500 25px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
-  context.fillText("あなたの人生、あと何回？", 160, 116);
+  context.fillText("80歳を基準に計算", 160, 116);
 
   drawRoundedRect(context, padding, 164, width - padding * 2, 336, 36);
-  context.fillStyle = "#101820";
+  context.fillStyle = "#313634";
   context.fill();
 
   context.fillStyle = "#ffffff";
@@ -831,31 +837,31 @@ async function createShareCanvas() {
   context.fillText(progressLabel, 108, 324);
   const progressWidth = context.measureText(progressLabel).width;
 
-  context.fillStyle = "#2457ff";
+  context.fillStyle = "#aab9c1";
   context.font = "800 54px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.fillText("%", 118 + progressWidth, 348);
 
   drawRoundedRect(context, 112, 404, 856, 16, 8);
-  context.fillStyle = "#444444";
+  context.fillStyle = "#505653";
   context.fill();
 
   if (progress > 0) {
     drawRoundedRect(context, 112, 404, 856 * (progress / 100), 16, 8);
-    context.fillStyle = "#2457ff";
+    context.fillStyle = "#748895";
     context.fill();
   }
 
-  context.fillStyle = "#c0c0c0";
+  context.fillStyle = "#c8cdca";
   context.font = "500 25px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.fillText(elapsedDaysText.textContent, 112, 458);
 
-  context.fillStyle = "#101820";
+  context.fillStyle = "#2d312f";
   context.font = "800 43px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
-  context.fillText("あと、何回？", padding, 570);
+  context.fillText("あと何回？", padding, 570);
 
-  context.fillStyle = "#66717d";
+  context.fillStyle = "#747b78";
   context.font = "500 24px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
-  context.fillText("いつもの景色も、数えると少し違って見える。", padding, 613);
+  context.fillText("80歳までの、おおよその回数", padding, 613);
 
   const counters = [
     { icon: "🌸", name: "桜の季節", value: cherryBlossomsText.textContent },
@@ -877,34 +883,34 @@ async function createShareCanvas() {
     const y = cardTop + row * (cardHeight + gap);
 
     drawRoundedRect(context, x, y, cardWidth, cardHeight, 24);
-    context.fillStyle = "#ffffff";
+    context.fillStyle = "#fbfbf9";
     context.fill();
-    context.strokeStyle = "#d4dde5";
+    context.strokeStyle = "#d9ddda";
     context.lineWidth = 2;
     context.stroke();
 
     context.font = "38px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
     context.fillText(counter.icon, x + 30, y + 43);
 
-    context.fillStyle = "#34404c";
+    context.fillStyle = "#4f5854";
     context.font = "700 25px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
     context.fillText(counter.name, x + 82, y + 43);
 
-    context.fillStyle = "#151515";
+    context.fillStyle = "#252927";
     context.font = "800 52px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
     context.fillText(counter.value, x + 30, y + 112);
     const valueWidth = context.measureText(counter.value).width;
 
-    context.fillStyle = "#66717d";
+    context.fillStyle = "#747b78";
     context.font = "700 24px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
     context.fillText("回", x + 40 + valueWidth, y + 119);
   });
 
-  context.fillStyle = "#66717d";
+  context.fillStyle = "#747b78";
   context.font = "500 22px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
-  context.fillText("※ 80歳まで生きると仮定した、おおよその回数です。", padding, 1232);
+  context.fillText("80歳を基準にした目安です。", padding, 1232);
 
-  context.fillStyle = "#101820";
+  context.fillStyle = "#2d312f";
   context.font = "700 23px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.textAlign = "right";
   context.fillText("gobtama.github.io/life-counter/", width - padding, 1288);
@@ -987,8 +993,8 @@ async function createResultImage(preferredTarget = "generic") {
 function resetImageButton() {
   imageButton.disabled = false;
   instagramShareButton.disabled = false;
-  imageButton.textContent = "画像を保存・共有";
-  instagramShareButton.textContent = "Instagramでシェア";
+  imageButton.textContent = "画像を共有";
+  instagramShareButton.textContent = "Instagramへ";
 }
 
 async function shareToInstagram() {

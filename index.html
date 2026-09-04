@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#eef3f7">
+  <meta name="theme-color" content="#f3f4f1">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="人生カウンター">
@@ -19,11 +19,10 @@
   <main class="container">
     <header class="header">
       <h1>人生カウンター</h1>
-      <p class="subtitle">あなたの人生、あと何回？</p>
     </header>
 
     <section class="input-panel">
-      <label>あなたの生年月日</label>
+      <label>生年月日</label>
 
       <div class="birthdate-selects">
         <select id="birthYear" aria-label="生まれた年">
@@ -39,25 +38,19 @@
         </select>
       </div>
 
-      <button id="countButton">人生を数えてみる</button>
+      <button id="countButton">数えてみる</button>
     </section>
 
     <section class="event-panel" aria-labelledby="eventHeading">
       <div class="event-heading">
-        <div>
-          <p class="event-kicker">MY COUNTDOWN</p>
-          <h2 id="eventHeading">自分だけの予定</h2>
-        </div>
-        <span class="event-heading-icon" aria-hidden="true">＋</span>
+        <h2 id="eventHeading">予定を数える</h2>
       </div>
 
-      <p class="event-description">試験や旅行、記念日までの日数も数えられます。</p>
-
       <form id="eventForm" class="event-form">
-        <label for="eventName">予定の名前</label>
-        <input id="eventName" name="eventName" type="text" maxlength="40" placeholder="例：資格試験" required>
+        <label for="eventName">名前</label>
+        <input id="eventName" name="eventName" type="text" maxlength="40" placeholder="資格試験、旅行など" required>
 
-        <label for="eventDate">予定日／記念日の開始日</label>
+        <label for="eventDate">日付</label>
         <input id="eventDate" name="eventDate" type="date" required>
 
         <label for="eventRepeat">繰り返し</label>
@@ -66,9 +59,9 @@
           <option value="monthly">毎月（○か月記念日）</option>
           <option value="yearly">毎年（○年記念日）</option>
         </select>
-        <p class="event-input-hint">毎月・毎年の場合は、記念日が始まった日を選んでください。</p>
+        <p class="event-input-hint">記念日は、始まった日を選んでください。</p>
 
-        <label for="eventImage">カードの背景画像（任意）</label>
+        <label for="eventImage">背景画像 <span class="optional-label">任意</span></label>
         <input id="eventImage" name="eventImage" type="file" accept="image/*">
         <div id="eventImagePreview" class="event-image-preview" hidden>
           <img id="eventImagePreviewPicture" alt="選択した背景画像のプレビュー">
@@ -84,7 +77,7 @@
       </form>
 
       <div id="eventList" class="event-list"></div>
-      <p class="event-storage-note">予定はこの端末内だけに保存されます。</p>
+      <p class="event-storage-note">この端末に保存されます。</p>
     </section>
 
     <section id="results" class="results">
@@ -104,8 +97,7 @@
         </section>
 
         <div class="section-heading">
-          <h2>あと、何回？</h2>
-          <p>いつもの景色も、数えると少し違って見える。</p>
+          <h2>あと何回？</h2>
         </div>
 
         <section class="counter-grid">
@@ -194,15 +186,15 @@
           </article>
         </section>
 
-        <p class="note">※ 80歳まで生きると仮定した、おおよその回数です。</p>
+        <p class="note">80歳を基準にした、おおよその回数です。</p>
       </section>
 
       <section class="share-area">
-        <p class="share-title">この結果、どうする？</p>
+        <p class="share-title">結果を共有</p>
 
         <div class="share-buttons">
           <button id="xShareButton" class="secondary-button" type="button">
-            Xでシェア
+            Xに投稿
           </button>
 
           <button id="lineShareButton" class="secondary-button line-button" type="button">
@@ -210,11 +202,11 @@
           </button>
 
           <button id="instagramShareButton" class="secondary-button instagram-button" type="button">
-            Instagramでシェア
+            Instagramへ
           </button>
 
           <button id="imageButton" class="secondary-button" type="button">
-            画像を保存・共有
+            画像を共有
           </button>
         </div>
 
@@ -223,15 +215,16 @@
     </section>
   </main>
 
-  <div id="loadingOverlay" class="loading-overlay">
+  <div id="loadingOverlay" class="loading-overlay" role="status" aria-live="polite" aria-hidden="true">
     <div class="loading-content">
-      <p class="loading-title">あと何回<br>あるんだろう。</p>
-
-      <div class="loading-dots">
-        <span></span>
-        <span></span>
-        <span></span>
+      <div class="hourglass" aria-hidden="true">
+        <span class="hourglass-frame hourglass-frame-top"></span>
+        <span class="hourglass-frame hourglass-frame-bottom"></span>
+        <span class="hourglass-sand hourglass-sand-top"></span>
+        <span class="hourglass-stream"></span>
+        <span class="hourglass-sand hourglass-sand-bottom"></span>
       </div>
+      <p class="loading-title">あと何回？</p>
     </div>
   </div>
 

@@ -916,14 +916,38 @@ function waitForAnimationFrame() {
 }
 
 function runHourglassAnimation() {
-  loadingOverlay.querySelectorAll(".sand-animation").forEach(function (animation) {
-    if (typeof animation.beginElement === "function") {
-      animation.beginElement();
-    }
-  });
-
   return new Promise(function (resolve) {
-    setTimeout(resolve, 2200);
+    const topSand = document.getElementById("hourglassTopSand");
+    const bottomSand = document.getElementById("hourglassBottomSand");
+    const stream = document.getElementById("hourglassSandStream");
+    const duration = 2150;
+    const startTime = performance.now();
+
+    function drawFrame(now) {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const topHeight = 39 - 37 * progress;
+      const bottomHeight = 1 + 40 * progress;
+
+      topSand.setAttribute("y", String(62 - topHeight));
+      topSand.setAttribute("height", String(topHeight));
+      bottomSand.setAttribute("y", String(109 - bottomHeight));
+      bottomSand.setAttribute("height", String(bottomHeight));
+      stream.style.opacity = progress > 0.04 && progress < 0.92 ? "1" : "0";
+
+      if (progress < 1) {
+        requestAnimationFrame(drawFrame);
+        return;
+      }
+
+      resolve();
+    }
+
+    topSand.setAttribute("y", "23");
+    topSand.setAttribute("height", "39");
+    bottomSand.setAttribute("y", "108");
+    bottomSand.setAttribute("height", "1");
+    stream.style.opacity = "0";
+    requestAnimationFrame(drawFrame);
   });
 }
 

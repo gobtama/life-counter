@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css?v=18">
+  <link rel="stylesheet" href="style.css?v=19">
 </head>
 
 <body>
@@ -281,19 +281,11 @@
           </clipPath>
         </defs>
         <g clip-path="url(#topChamber)">
-          <rect class="svg-sand" x="23" y="23" width="54" height="39">
-            <animate class="sand-animation" attributeName="y" from="23" to="60" dur="2.15s" begin="indefinite" fill="freeze"></animate>
-            <animate class="sand-animation" attributeName="height" from="39" to="2" dur="2.15s" begin="indefinite" fill="freeze"></animate>
-          </rect>
+          <rect id="hourglassTopSand" class="svg-sand" x="23" y="23" width="54" height="39"></rect>
         </g>
-        <path class="svg-sand-stream" d="M50 59V78">
-          <animate class="sand-animation" attributeName="opacity" values="0;1;1;0" keyTimes="0;0.06;0.9;1" dur="2.15s" begin="indefinite" fill="freeze"></animate>
-        </path>
+        <path id="hourglassSandStream" class="svg-sand-stream" d="M50 59V78"></path>
         <g clip-path="url(#bottomChamber)">
-          <rect class="svg-sand" x="23" y="108" width="54" height="1">
-            <animate class="sand-animation" attributeName="y" from="108" to="68" dur="2.15s" begin="indefinite" fill="freeze"></animate>
-            <animate class="sand-animation" attributeName="height" from="1" to="41" dur="2.15s" begin="indefinite" fill="freeze"></animate>
-          </rect>
+          <rect id="hourglassBottomSand" class="svg-sand" x="23" y="108" width="54" height="1"></rect>
         </g>
         <path class="svg-hourglass-frame" d="M17 12H83M23 17L45 64L22 113M77 17L55 64L78 113M17 118H83"></path>
       </svg>
@@ -301,7 +293,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=18"></script>
+  <script src="script.js?v=19"></script>
 </body>
 
 </html>

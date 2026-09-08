@@ -36,11 +36,11 @@ body::before {
   background:
     linear-gradient(
       125deg,
-      #f4e7ea 0%,
-      #e7efe5 28%,
-      #f2e5d9 56%,
-      #e3ebf1 82%,
-      #f4e7ea 100%
+      #efd9de 0%,
+      #dce8d9 28%,
+      #edddce 56%,
+      #d7e3eb 82%,
+      #efd9de 100%
     );
   background-position: 0% 50%;
   background-size: 320% 320%;
@@ -721,7 +721,7 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(241, 241, 238, 0.72);
+  background: rgba(241, 241, 238, 0.6);
   backdrop-filter: blur(22px);
   color: var(--ink);
   opacity: 0;
@@ -841,44 +841,9 @@ select {
   height: 29px;
   border-radius: 4px;
   background: var(--sand);
+  opacity: 0;
+  transform: scaleY(0.15);
   transform-origin: 50% 0;
-}
-
-.loading-overlay.show .hourglass-sand-top {
-  animation: sandTop 1.4s linear forwards;
-}
-
-.loading-overlay.show .hourglass-sand-bottom {
-  animation: sandBottom 1.4s linear forwards;
-}
-
-.loading-overlay.show .hourglass-stream {
-  animation: sandStream 1.4s linear forwards;
-}
-
-@keyframes sandTop {
-  to {
-    transform: scaleY(0.04);
-  }
-}
-
-@keyframes sandBottom {
-  to {
-    transform: scaleY(1);
-  }
-}
-
-@keyframes sandStream {
-  0%,
-  88% {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scaleY(0);
-  }
 }
 
 /* スマホ */

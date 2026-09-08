@@ -676,7 +676,75 @@ function revealCards(animate = true) {
   });
 }
 
-function handleCountClick() {
+function waitForAnimationFrame() {
+  return new Promise(function (resolve) {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(resolve);
+    });
+  });
+}
+
+function runHourglassAnimation() {
+  const topSand = loadingOverlay.querySelector(".hourglass-sand-top");
+  const bottomSand = loadingOverlay.querySelector(".hourglass-sand-bottom");
+  const stream = loadingOverlay.querySelector(".hourglass-stream");
+  const duration = 1800;
+
+  [topSand, bottomSand, stream].forEach(function (element) {
+    const runningAnimations =
+      typeof element.getAnimations === "function" ? element.getAnimations() : [];
+
+    runningAnimations.forEach(function (animation) {
+      animation.cancel();
+    });
+  });
+
+  if (typeof topSand.animate !== "function") {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, duration);
+    });
+  }
+
+  const timing = {
+    duration,
+    easing: "linear",
+    fill: "forwards"
+  };
+
+  const animations = [
+    topSand.animate(
+      [
+        { transform: "scaleY(1)" },
+        { transform: "scaleY(0.04)" }
+      ],
+      timing
+    ),
+    bottomSand.animate(
+      [
+        { transform: "scaleY(0.08)" },
+        { transform: "scaleY(1)" }
+      ],
+      timing
+    ),
+    stream.animate(
+      [
+        { opacity: 0, transform: "scaleY(0.15)", offset: 0 },
+        { opacity: 1, transform: "scaleY(1)", offset: 0.08 },
+        { opacity: 1, transform: "scaleY(1)", offset: 0.88 },
+        { opacity: 0, transform: "scaleY(0)", offset: 1 }
+      ],
+      timing
+    )
+  ];
+
+  return Promise.all(
+    animations.map(function (animation) {
+      return animation.finished.catch(function () {});
+    })
+  );
+}
+
+async function handleCountClick() {
   const data = getLifeDates();
 
   if (data === null) {
@@ -689,24 +757,25 @@ function handleCountClick() {
   loadingOverlay.setAttribute("aria-hidden", "false");
   countButton.disabled = true;
 
+  await waitForAnimationFrame();
+  await runHourglassAnimation();
+
+  calculateLife(data);
+  results.classList.add("show");
+  loadingOverlay.classList.remove("show");
+  loadingOverlay.setAttribute("aria-hidden", "true");
+  countButton.disabled = false;
+
   setTimeout(function () {
-    calculateLife(data);
-    results.classList.add("show");
-    loadingOverlay.classList.remove("show");
-    loadingOverlay.setAttribute("aria-hidden", "true");
-    countButton.disabled = false;
+    revealCards(true);
 
     setTimeout(function () {
-      revealCards(true);
-
-      setTimeout(function () {
-        results.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-      }, 200);
-    }, 180);
-  }, 1400);
+      results.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 200);
+  }, 180);
 }
 
 function getShareText() {
@@ -805,10 +874,10 @@ async function createShareCanvas() {
   canvas.height = height;
 
   const seasonalGradient = context.createLinearGradient(0, 0, width, height);
-  seasonalGradient.addColorStop(0, "#f4e7ea");
-  seasonalGradient.addColorStop(0.34, "#e7efe5");
-  seasonalGradient.addColorStop(0.67, "#f2e5d9");
-  seasonalGradient.addColorStop(1, "#e3ebf1");
+  seasonalGradient.addColorStop(0, "#efd9de");
+  seasonalGradient.addColorStop(0.34, "#dce8d9");
+  seasonalGradient.addColorStop(0.67, "#edddce");
+  seasonalGradient.addColorStop(1, "#d7e3eb");
   context.fillStyle = seasonalGradient;
   context.fillRect(0, 0, width, height);
 

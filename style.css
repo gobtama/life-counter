@@ -925,16 +925,6 @@ select {
 
 .svg-sand {
   fill: var(--sand);
-  transform-box: fill-box;
-}
-
-.svg-sand-top {
-  transform-origin: 50px 62px;
-}
-
-.svg-sand-bottom {
-  transform: scaleY(0.06);
-  transform-origin: 50px 109px;
 }
 
 .svg-sand-stream {
@@ -943,37 +933,6 @@ select {
   stroke-width: 4;
   stroke-linecap: round;
   opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center top;
-}
-
-.loading-overlay.show .svg-sand-top {
-  animation: sandTopFalls 2.15s linear forwards;
-}
-
-.loading-overlay.show .svg-sand-bottom {
-  animation: sandBottomFills 2.15s linear forwards;
-}
-
-.loading-overlay.show .svg-sand-stream {
-  animation: sandStreams 2.15s linear forwards;
-}
-
-@keyframes sandTopFalls {
-  from { transform: scaleY(1); opacity: 1; }
-  to { transform: scaleY(0.03); opacity: 0; }
-}
-
-@keyframes sandBottomFills {
-  from { transform: scaleY(0.06); }
-  to { transform: scaleY(1); }
-}
-
-@keyframes sandStreams {
-  0% { opacity: 0; transform: scaleY(0.1); }
-  7% { opacity: 1; transform: scaleY(1); }
-  90% { opacity: 1; transform: scaleY(1); }
-  100% { opacity: 0; transform: scaleY(0); }
 }
 
 /* スマホ */

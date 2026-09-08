@@ -916,6 +916,12 @@ function waitForAnimationFrame() {
 }
 
 function runHourglassAnimation() {
+  loadingOverlay.querySelectorAll(".sand-animation").forEach(function (animation) {
+    if (typeof animation.beginElement === "function") {
+      animation.beginElement();
+    }
+  });
+
   return new Promise(function (resolve) {
     setTimeout(resolve, 2200);
   });

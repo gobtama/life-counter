@@ -251,7 +251,6 @@ select {
 }
 
 .event-form input[type="text"],
-.event-form input[type="date"],
 .event-form select {
   display: block;
   min-width: 0;
@@ -266,13 +265,18 @@ select {
   font: inherit;
 }
 
-.event-form input[type="date"] {
-  width: -webkit-fill-available;
-  width: stretch;
-  inline-size: -webkit-fill-available;
-  -webkit-appearance: none;
-  appearance: none;
-  overflow: hidden;
+.event-date-selects {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.event-date-selects select {
+  min-width: 0;
+  padding: 0 7px;
+  text-align: center;
 }
 
 .event-form input:focus,
@@ -905,127 +909,59 @@ select {
 }
 
 .hourglass {
-  position: relative;
+  display: block;
   width: 94px;
   height: 122px;
+  overflow: hidden;
 }
 
-.hourglass::before,
-.hourglass::after {
-  content: "";
-  position: absolute;
-  left: 7px;
-  z-index: 3;
-  width: 80px;
-  height: 7px;
-  border-radius: 7px;
-  background: var(--ink);
+.svg-hourglass-frame {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.hourglass::before {
-  top: 3px;
+.svg-sand {
+  fill: var(--sand);
+  transform-box: fill-box;
 }
 
-.hourglass::after {
-  bottom: 3px;
+.svg-sand-top {
+  transform-origin: 50px 62px;
 }
 
-.hourglass-frame {
-  position: absolute;
-  left: 14px;
-  z-index: 1;
-  width: 66px;
-  height: 53px;
-  background: var(--ink);
+.svg-sand-bottom {
+  transform: scaleY(0.06);
+  transform-origin: 50px 109px;
 }
 
-.hourglass-frame::after {
-  content: "";
-  position: absolute;
-  inset: 5px 7px;
-  background: var(--canvas);
-}
-
-.hourglass-frame-top {
-  top: 9px;
-  clip-path: polygon(0 0, 100% 0, 57% 100%, 43% 100%);
-}
-
-.hourglass-frame-top::after {
-  clip-path: polygon(0 0, 100% 0, 57% 100%, 43% 100%);
-}
-
-.hourglass-frame-bottom {
-  bottom: 9px;
-  clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
-}
-
-.hourglass-frame-bottom::after {
-  clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
-}
-
-.hourglass-sand {
-  position: absolute;
-  left: 29px;
-  z-index: 2;
-  width: 36px;
-  height: 35px;
-  background: var(--sand);
-}
-
-.hourglass-sand-top {
-  top: 18px;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-}
-
-.hourglass-sand-bottom {
-  bottom: 18px;
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-  transform: scaleY(0.08);
-  transform-origin: 50% 100%;
-}
-
-.hourglass-stream {
-  position: absolute;
-  top: 53px;
-  left: 45px;
-  z-index: 2;
-  width: 4px;
-  height: 29px;
-  border-radius: 4px;
-  background: var(--sand);
+.svg-sand-stream {
+  fill: none;
+  stroke: var(--sand);
+  stroke-width: 4;
+  stroke-linecap: round;
   opacity: 0;
-  transform: scaleY(0.15);
-  transform-origin: 50% 0;
+  transform-box: fill-box;
+  transform-origin: center top;
 }
 
-.loading-overlay.show .hourglass-sand-top {
+.loading-overlay.show .svg-sand-top {
   animation: sandTopFalls 2.15s linear forwards;
 }
 
-.loading-overlay.show .hourglass-sand-bottom {
+.loading-overlay.show .svg-sand-bottom {
   animation: sandBottomFills 2.15s linear forwards;
 }
 
-.loading-overlay.show .hourglass-stream {
+.loading-overlay.show .svg-sand-stream {
   animation: sandStreams 2.15s linear forwards;
 }
 
 @keyframes sandTopFalls {
-  0% {
-    clip-path: polygon(0 0, 100% 0, 50% 100%);
-    opacity: 1;
-  }
-
-  88% {
-    clip-path: polygon(44% 88%, 56% 88%, 50% 100%);
-    opacity: 1;
-  }
-
-  100% {
-    clip-path: polygon(49% 98%, 51% 98%, 50% 100%);
-    opacity: 0;
-  }
+  from { transform: scaleY(1); opacity: 1; }
+  to { transform: scaleY(0.03); opacity: 0; }
 }
 
 @keyframes sandBottomFills {

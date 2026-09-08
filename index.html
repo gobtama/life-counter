@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css?v=16">
+  <link rel="stylesheet" href="style.css?v=17">
 </head>
 
 <body>
@@ -52,15 +52,26 @@
 
     <section class="event-panel" aria-labelledby="eventHeading">
       <div class="event-heading">
-        <h2 id="eventHeading">予定を数える</h2>
+        <h2 id="eventHeading">記念日と予定</h2>
       </div>
 
       <form id="eventForm" class="event-form">
         <label for="eventName">名前</label>
         <input id="eventName" name="eventName" type="text" maxlength="40" placeholder="資格試験、旅行など" required>
 
-        <label for="eventDate">日付</label>
-        <input id="eventDate" name="eventDate" type="date" required>
+        <label for="eventDateYear">日付</label>
+        <div class="event-date-selects">
+          <select id="eventDateYear" aria-label="予定の年">
+            <option value="">年</option>
+          </select>
+          <select id="eventDateMonth" aria-label="予定の月">
+            <option value="">月</option>
+          </select>
+          <select id="eventDateDay" aria-label="予定の日">
+            <option value="">日</option>
+          </select>
+        </div>
+        <input id="eventDate" name="eventDate" type="hidden">
 
         <label for="eventRepeat">繰り返し</label>
         <select id="eventRepeat" name="eventRepeat">
@@ -201,22 +212,22 @@
           </article>
         </section>
 
-        <p id="resultNote" class="note">80歳を基準にした、おおよその回数です。</p>
+        <p id="resultNote" class="note">80歳までで計算しています。</p>
       </section>
 
       <section class="time-tools" aria-label="時間の見方">
         <div class="time-tool future-tool">
           <div class="tool-heading">
-            <h3>少し先から見る</h3>
+            <h3>年齢を進める</h3>
             <output id="futureAgeOutput" for="futureAgeRange">現在</output>
           </div>
           <input id="futureAgeRange" type="range" min="0" max="80" value="0" step="1">
-          <p id="futureDateLabel" class="tool-note">今日から見た回数です。</p>
+          <p id="futureDateLabel" class="tool-note">今の年齢</p>
         </div>
 
         <div class="time-tool together-tool">
           <div class="tool-heading">
-            <h3>あと何度、会える？</h3>
+            <h3>あと何回会える？</h3>
           </div>
           <div class="together-controls">
             <input id="personName" type="text" maxlength="20" placeholder="大切な人">
@@ -227,7 +238,7 @@
               <option value="365.2425">年に1回</option>
             </select>
           </div>
-          <p class="together-result"><span id="togetherLabel">大切な人と</span><strong id="togetherCount">0</strong><span>回くらい</span></p>
+          <p class="together-result"><span id="togetherLabel">大切な人と、あと</span><strong id="togetherCount">0</strong><span>回</span></p>
         </div>
 
       </section>
@@ -260,18 +271,29 @@
 
   <div id="loadingOverlay" class="loading-overlay" role="status" aria-live="polite" aria-hidden="true">
     <div class="loading-content">
-      <div class="hourglass" aria-hidden="true">
-        <span class="hourglass-frame hourglass-frame-top"></span>
-        <span class="hourglass-frame hourglass-frame-bottom"></span>
-        <span class="hourglass-sand hourglass-sand-top"></span>
-        <span class="hourglass-stream"></span>
-        <span class="hourglass-sand hourglass-sand-bottom"></span>
-      </div>
+      <svg class="hourglass" viewBox="0 0 100 130" aria-hidden="true">
+        <defs>
+          <clipPath id="topChamber">
+            <path d="M24 18H76L55 62H45Z"></path>
+          </clipPath>
+          <clipPath id="bottomChamber">
+            <path d="M45 68H55L77 112H23Z"></path>
+          </clipPath>
+        </defs>
+        <g clip-path="url(#topChamber)">
+          <path class="svg-sand svg-sand-top" d="M24 23H76L54 62H46Z"></path>
+        </g>
+        <path class="svg-sand-stream" d="M50 59V78"></path>
+        <g clip-path="url(#bottomChamber)">
+          <path class="svg-sand svg-sand-bottom" d="M50 68L76 109H24Z"></path>
+        </g>
+        <path class="svg-hourglass-frame" d="M17 12H83M23 17L45 64L22 113M77 17L55 64L78 113M17 118H83"></path>
+      </svg>
       <p class="loading-title">あと何回？</p>
     </div>
   </div>
 
-  <script src="script.js?v=16"></script>
+  <script src="script.js?v=17"></script>
 </body>
 
 </html>

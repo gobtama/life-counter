@@ -39,6 +39,9 @@ const shareMessage = document.getElementById("shareMessage");
 const eventForm = document.getElementById("eventForm");
 const eventName = document.getElementById("eventName");
 const eventDate = document.getElementById("eventDate");
+const eventDateYear = document.getElementById("eventDateYear");
+const eventDateMonth = document.getElementById("eventDateMonth");
+const eventDateDay = document.getElementById("eventDateDay");
 const eventRepeat = document.getElementById("eventRepeat");
 const eventImage = document.getElementById("eventImage");
 const eventImagePreview = document.getElementById("eventImagePreview");
@@ -61,6 +64,69 @@ let latestLifeData = null;
 function getSelectedLifespan() {
   const selected = document.querySelector('input[name="lifespan"]:checked');
   return selected ? Number(selected.value) : 80;
+}
+
+function createEventDateOptions() {
+  const currentYear = new Date().getFullYear();
+
+  for (let year = currentYear - 100; year <= currentYear + 100; year++) {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year + "年";
+    eventDateYear.appendChild(option);
+  }
+
+  for (let month = 1; month <= 12; month++) {
+    const option = document.createElement("option");
+    option.value = month;
+    option.textContent = month + "月";
+    eventDateMonth.appendChild(option);
+  }
+
+  updateEventDayOptions();
+}
+
+function updateEventDayOptions() {
+  const selectedDay = eventDateDay.value;
+  const year = Number(eventDateYear.value) || new Date().getFullYear();
+  const month = Number(eventDateMonth.value) || 1;
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  eventDateDay.innerHTML = '<option value="">日</option>';
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const option = document.createElement("option");
+    option.value = day;
+    option.textContent = day + "日";
+    eventDateDay.appendChild(option);
+  }
+
+  if (selectedDay && Number(selectedDay) <= daysInMonth) {
+    eventDateDay.value = selectedDay;
+  }
+
+  syncEventDateValue();
+}
+
+function syncEventDateValue() {
+  if (!eventDateYear.value || !eventDateMonth.value || !eventDateDay.value) {
+    eventDate.value = "";
+    return;
+  }
+
+  eventDate.value =
+    eventDateYear.value + "-" +
+    String(eventDateMonth.value).padStart(2, "0") + "-" +
+    String(eventDateDay.value).padStart(2, "0");
+}
+
+function setEventDateSelects(dateText) {
+  const parts = dateText.split("-");
+  eventDateYear.value = Number(parts[0]);
+  eventDateMonth.value = Number(parts[1]);
+  updateEventDayOptions();
+  eventDateDay.value = Number(parts[2]);
+  syncEventDateValue();
 }
 
 function loadCustomEvents() {
@@ -305,6 +371,7 @@ function renderCustomEvents() {
 
 function resetEventForm(message = "") {
   eventForm.reset();
+  updateEventDayOptions();
   editingEventId = null;
   pendingEventImage = null;
   updateEventImagePreview();
@@ -457,7 +524,7 @@ function startEventEdit(eventId) {
 
   editingEventId = eventId;
   eventName.value = targetEvent.name;
-  eventDate.value = targetEvent.date;
+  setEventDateSelects(targetEvent.date);
   eventRepeat.value = targetEvent.repeat;
   pendingEventImage = targetEvent.backgroundImage;
   updateEventImagePreview();
@@ -687,7 +754,7 @@ function updateTogetherCount(referenceDate, lifeEndDate) {
   const pace = Number(meetingPace.value);
   const name = personName.value.trim();
   const count = Math.max(0, Math.floor(daysBetween(referenceDate, lifeEndDate) / pace));
-  togetherLabel.textContent = name ? name + "と" : "大切な人と";
+  togetherLabel.textContent = name ? name + "と、あと" : "大切な人と、あと";
   togetherCount.textContent = count.toLocaleString();
   localStorage.setItem("meetingPerson", name);
   localStorage.setItem("meetingPace", meetingPace.value);
@@ -699,7 +766,7 @@ function setupFutureRange(data) {
   futureAgeRange.max = data.lifespan;
   futureAgeRange.value = currentAge;
   futureAgeOutput.textContent = "現在";
-  futureDateLabel.textContent = "今日から見た回数です。";
+  futureDateLabel.textContent = "今の年齢";
 }
 
 function handleFutureAgeInput() {
@@ -721,8 +788,8 @@ function handleFutureAgeInput() {
 
   futureAgeOutput.textContent = age === currentAge ? "現在" : age + "歳";
   futureDateLabel.textContent = age === currentAge
-    ? "今日から見た回数です。"
-    : referenceDate.getFullYear() + "年の自分から見た回数です。";
+    ? "今の年齢"
+    : referenceDate.getFullYear() + "年時点";
   calculateLife({ ...latestLifeData, today: referenceDate }, false);
 }
 
@@ -810,7 +877,7 @@ function calculateLife(data, saveState = true) {
   birthdaysText.textContent = birthdayCount.toLocaleString();
 
   summaryLabel.textContent = lifespan + "歳までの人生";
-  resultNote.textContent = lifespan + "歳を基準にした、おおよその回数です。";
+  resultNote.textContent = lifespan + "歳までで計算しています。";
   updateNextOccurrenceLabels(birthDate, today, lifeEndDate);
   updateTogetherCount(today, lifeEndDate);
 
@@ -1218,6 +1285,9 @@ function setupInfoButtons() {
 
 birthYear.addEventListener("change", updateDayOptions);
 birthMonth.addEventListener("change", updateDayOptions);
+eventDateYear.addEventListener("change", updateEventDayOptions);
+eventDateMonth.addEventListener("change", updateEventDayOptions);
+eventDateDay.addEventListener("change", syncEventDateValue);
 lifespanInputs.forEach(function (input) {
   input.addEventListener("change", function () {
     if (!results.classList.contains("show")) {
@@ -1264,6 +1334,7 @@ cancelEditButton.addEventListener("click", function () {
 });
 
 createBirthdateOptions();
+createEventDateOptions();
 setupInfoButtons();
 renderCustomEvents();
 

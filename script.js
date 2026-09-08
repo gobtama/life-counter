@@ -804,7 +804,12 @@ async function createShareCanvas() {
   canvas.width = width;
   canvas.height = height;
 
-  context.fillStyle = "#f1f1ee";
+  const seasonalGradient = context.createLinearGradient(0, 0, width, height);
+  seasonalGradient.addColorStop(0, "#f4e7ea");
+  seasonalGradient.addColorStop(0.34, "#e7efe5");
+  seasonalGradient.addColorStop(0.67, "#f2e5d9");
+  seasonalGradient.addColorStop(1, "#e3ebf1");
+  context.fillStyle = seasonalGradient;
   context.fillRect(0, 0, width, height);
 
   const icon = await loadShareIcon();

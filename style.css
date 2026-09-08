@@ -19,10 +19,52 @@ html {
 }
 
 body {
+  position: relative;
+  min-height: 100vh;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif;
-  background: var(--canvas);
+  background: transparent;
   color: var(--ink);
+  isolation: isolate;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: -18%;
+  background:
+    linear-gradient(
+      125deg,
+      #f4e7ea 0%,
+      #e7efe5 28%,
+      #f2e5d9 56%,
+      #e3ebf1 82%,
+      #f4e7ea 100%
+    );
+  background-position: 0% 50%;
+  background-size: 320% 320%;
+  animation: seasonFlow 30s ease-in-out infinite;
+  transform: translateZ(0);
+}
+
+@keyframes seasonFlow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  25% {
+    background-position: 35% 15%;
+  }
+
+  50% {
+    background-position: 75% 55%;
+  }
+
+  75% {
+    background-position: 100% 85%;
+  }
 }
 
 button,
@@ -120,7 +162,9 @@ select {
   padding: 25px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: var(--surface);
+  background: rgba(250, 249, 246, 0.82);
+  box-shadow: 0 14px 40px rgba(64, 55, 48, 0.04);
+  backdrop-filter: blur(12px);
 }
 
 .event-heading {
@@ -363,7 +407,7 @@ select {
 }
 
 .share-card {
-  background: var(--canvas);
+  background: transparent;
 }
 
 /* 人生消化率 */
@@ -677,7 +721,8 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--canvas);
+  background: rgba(241, 241, 238, 0.72);
+  backdrop-filter: blur(22px);
   color: var(--ink);
   opacity: 0;
   visibility: hidden;
@@ -833,14 +878,6 @@ select {
   100% {
     opacity: 0;
     transform: scaleY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .loading-overlay.show .hourglass-sand-top,
-  .loading-overlay.show .hourglass-sand-bottom,
-  .loading-overlay.show .hourglass-stream {
-    animation-duration: 0.01ms;
   }
 }
 

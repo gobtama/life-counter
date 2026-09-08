@@ -266,6 +266,15 @@ select {
   font: inherit;
 }
 
+.event-form input[type="date"] {
+  width: -webkit-fill-available;
+  width: stretch;
+  inline-size: -webkit-fill-available;
+  -webkit-appearance: none;
+  appearance: none;
+  overflow: hidden;
+}
+
 .event-form input:focus,
 .event-form select:focus {
   border-color: var(--copper);
@@ -967,7 +976,6 @@ select {
 .hourglass-sand-top {
   top: 18px;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform-origin: 50% 100%;
 }
 
 .hourglass-sand-bottom {
@@ -1004,8 +1012,20 @@ select {
 }
 
 @keyframes sandTopFalls {
-  from { transform: scaleY(1); }
-  to { transform: scaleY(0.03); }
+  0% {
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    opacity: 1;
+  }
+
+  88% {
+    clip-path: polygon(44% 88%, 56% 88%, 50% 100%);
+    opacity: 1;
+  }
+
+  100% {
+    clip-path: polygon(49% 98%, 51% 98%, 50% 100%);
+    opacity: 0;
+  }
 }
 
 @keyframes sandBottomFills {

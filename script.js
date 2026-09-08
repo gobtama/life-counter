@@ -27,8 +27,6 @@ const personName = document.getElementById("personName");
 const meetingPace = document.getElementById("meetingPace");
 const togetherLabel = document.getElementById("togetherLabel");
 const togetherCount = document.getElementById("togetherCount");
-const lifeWeeksCanvas = document.getElementById("lifeWeeksCanvas");
-const weeksLegend = document.getElementById("weeksLegend");
 
 const progressFill = document.getElementById("progressFill");
 const results = document.getElementById("results");
@@ -685,47 +683,6 @@ function getAgeOnDate(birthDate, date) {
   return Math.max(age, 0);
 }
 
-function drawLifeWeeks(birthDate, referenceDate, lifespan) {
-  const columns = 52;
-  const rows = lifespan;
-  const gap = 2;
-  const dot = 6;
-  const width = columns * (dot + gap) - gap;
-  const height = rows * (dot + gap) - gap;
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
-  const context = lifeWeeksCanvas.getContext("2d");
-  const elapsedWeeks = Math.max(0, Math.floor((referenceDate - birthDate) / (oneDayMs * 7)));
-  const totalWeeks = rows * columns;
-
-  lifeWeeksCanvas.width = width * ratio;
-  lifeWeeksCanvas.height = height * ratio;
-  lifeWeeksCanvas.style.aspectRatio = width + " / " + height;
-  context.scale(ratio, ratio);
-  context.clearRect(0, 0, width, height);
-
-  for (let week = 0; week < totalWeeks; week++) {
-    const x = (week % columns) * (dot + gap);
-    const y = Math.floor(week / columns) * (dot + gap);
-    context.fillStyle = week < elapsedWeeks ? "#a56f50" : "rgba(123, 119, 112, 0.2)";
-    context.beginPath();
-
-    if (typeof context.roundRect === "function") {
-      context.roundRect(x, y, dot, dot, 1.5);
-    } else {
-      context.rect(x, y, dot, dot);
-    }
-
-    context.fill();
-  }
-
-  lifeWeeksCanvas.setAttribute(
-    "aria-label",
-    lifespan + "年間の約" + totalWeeks.toLocaleString() + "週のうち、約" +
-      Math.min(elapsedWeeks, totalWeeks).toLocaleString() + "週が経過した図"
-  );
-  weeksLegend.textContent = lifespan + "年 = 約" + totalWeeks.toLocaleString() + "週";
-}
-
 function updateTogetherCount(referenceDate, lifeEndDate) {
   const pace = Number(meetingPace.value);
   const name = personName.value.trim();
@@ -856,7 +813,6 @@ function calculateLife(data, saveState = true) {
   resultNote.textContent = lifespan + "歳を基準にした、おおよその回数です。";
   updateNextOccurrenceLabels(birthDate, today, lifeEndDate);
   updateTogetherCount(today, lifeEndDate);
-  drawLifeWeeks(birthDate, today, lifespan);
 
   const progress = Math.min(Math.max(lifeProgress, 0), 100);
   progressFill.style.width = progress + "%";

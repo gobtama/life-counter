@@ -239,6 +239,10 @@ select {
   margin-top: 22px;
 }
 
+.event-form {
+  min-width: 0;
+}
+
 .optional-label {
   margin-left: 4px;
   color: var(--muted);
@@ -249,6 +253,9 @@ select {
 .event-form input[type="text"],
 .event-form input[type="date"],
 .event-form select {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
   width: 100%;
   min-height: 50px;
   padding: 0 13px;
@@ -786,36 +793,6 @@ select {
   font-size: 34px;
   line-height: 1;
   letter-spacing: -0.04em;
-}
-
-.weeks-legend {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-#lifeWeeksCanvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin-top: 17px;
-}
-
-.week-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  margin: 0 4px 1px 0;
-  border-radius: 2px;
-}
-
-.week-dot.lived {
-  background: var(--copper);
-}
-
-.week-dot.remaining {
-  margin-left: 9px;
-  border: 1px solid #c9c2ba;
-  background: transparent;
 }
 
 /* シェア */

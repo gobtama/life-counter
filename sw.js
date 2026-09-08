@@ -1,9 +1,9 @@
-const CACHE_NAME = "life-counter-v14";
+const CACHE_NAME = "life-counter-v15";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=14",
-  "./script.js?v=14",
+  "./style.css?v=15",
+  "./script.js?v=15",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

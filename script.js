@@ -251,7 +251,7 @@ function renderCustomEvents() {
     if (item.event.backgroundImage) {
       eventItem.classList.add("has-background");
       eventItem.style.backgroundImage =
-        "linear-gradient(rgba(243, 244, 241, 0.62), rgba(243, 244, 241, 0.78)), url(\"" +
+        "linear-gradient(rgba(241, 241, 238, 0.62), rgba(241, 241, 238, 0.78)), url(\"" +
         item.event.backgroundImage +
         "\")";
     }
@@ -804,7 +804,7 @@ async function createShareCanvas() {
   canvas.width = width;
   canvas.height = height;
 
-  context.fillStyle = "#f3f4f1";
+  context.fillStyle = "#f1f1ee";
   context.fillRect(0, 0, width, height);
 
   const icon = await loadShareIcon();
@@ -813,17 +813,17 @@ async function createShareCanvas() {
     context.drawImage(icon, padding, 50, 76, 76);
   }
 
-  context.fillStyle = "#2d312f";
+  context.fillStyle = "#302e2b";
   context.font = "700 44px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.textBaseline = "middle";
   context.fillText("人生カウンター", 158, 78);
 
-  context.fillStyle = "#747b78";
+  context.fillStyle = "#7b7770";
   context.font = "500 25px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.fillText("80歳を基準に計算", 160, 116);
 
   drawRoundedRect(context, padding, 164, width - padding * 2, 336, 36);
-  context.fillStyle = "#313634";
+  context.fillStyle = "#34312e";
   context.fill();
 
   context.fillStyle = "#ffffff";
@@ -837,29 +837,29 @@ async function createShareCanvas() {
   context.fillText(progressLabel, 108, 324);
   const progressWidth = context.measureText(progressLabel).width;
 
-  context.fillStyle = "#aab9c1";
+  context.fillStyle = "#c9a58e";
   context.font = "800 54px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.fillText("%", 118 + progressWidth, 348);
 
   drawRoundedRect(context, 112, 404, 856, 16, 8);
-  context.fillStyle = "#505653";
+  context.fillStyle = "#514c48";
   context.fill();
 
   if (progress > 0) {
     drawRoundedRect(context, 112, 404, 856 * (progress / 100), 16, 8);
-    context.fillStyle = "#748895";
+    context.fillStyle = "#a56f50";
     context.fill();
   }
 
-  context.fillStyle = "#c8cdca";
+  context.fillStyle = "#ccc6c0";
   context.font = "500 25px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.fillText(elapsedDaysText.textContent, 112, 458);
 
-  context.fillStyle = "#2d312f";
+  context.fillStyle = "#302e2b";
   context.font = "800 43px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.fillText("あと何回？", padding, 570);
 
-  context.fillStyle = "#747b78";
+  context.fillStyle = "#7b7770";
   context.font = "500 24px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.fillText("80歳までの、おおよその回数", padding, 613);
 
@@ -883,34 +883,34 @@ async function createShareCanvas() {
     const y = cardTop + row * (cardHeight + gap);
 
     drawRoundedRect(context, x, y, cardWidth, cardHeight, 24);
-    context.fillStyle = "#fbfbf9";
+    context.fillStyle = "#faf9f6";
     context.fill();
-    context.strokeStyle = "#d9ddda";
+    context.strokeStyle = "#d9d5ce";
     context.lineWidth = 2;
     context.stroke();
 
     context.font = "38px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
     context.fillText(counter.icon, x + 30, y + 43);
 
-    context.fillStyle = "#4f5854";
+    context.fillStyle = "#57514b";
     context.font = "700 25px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
     context.fillText(counter.name, x + 82, y + 43);
 
-    context.fillStyle = "#252927";
+    context.fillStyle = "#292724";
     context.font = "800 52px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
     context.fillText(counter.value, x + 30, y + 112);
     const valueWidth = context.measureText(counter.value).width;
 
-    context.fillStyle = "#747b78";
+    context.fillStyle = "#7b7770";
     context.font = "700 24px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
     context.fillText("回", x + 40 + valueWidth, y + 119);
   });
 
-  context.fillStyle = "#747b78";
+  context.fillStyle = "#7b7770";
   context.font = "500 22px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.fillText("80歳を基準にした目安です。", padding, 1232);
 
-  context.fillStyle = "#2d312f";
+  context.fillStyle = "#302e2b";
   context.font = "700 23px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
   context.textAlign = "right";
   context.fillText("gobtama.github.io/life-counter/", width - padding, 1288);

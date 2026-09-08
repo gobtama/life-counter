@@ -120,6 +120,18 @@ function syncEventDateValue() {
     String(eventDateDay.value).padStart(2, "0");
 }
 
+function getSelectedEventDate() {
+  if (!eventDateYear.value || !eventDateMonth.value || !eventDateDay.value) {
+    return "";
+  }
+
+  return (
+    eventDateYear.value + "-" +
+    String(eventDateMonth.value).padStart(2, "0") + "-" +
+    String(eventDateDay.value).padStart(2, "0")
+  );
+}
+
 function setEventDateSelects(dateText) {
   const parts = dateText.split("-");
   eventDateYear.value = Number(parts[0]);
@@ -449,7 +461,7 @@ function handleEventSubmit(event) {
   event.preventDefault();
 
   const name = eventName.value.trim();
-  const date = eventDate.value;
+  const date = getSelectedEventDate();
   const repeat = eventRepeat.value;
 
   if (name === "" || date === "") {

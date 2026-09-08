@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f1f1ee">
+  <meta name="theme-color" content="#ead9cf">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="人生カウンター">
@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
 </head>
 
 <body>
@@ -37,6 +37,15 @@
           <option value="">日</option>
         </select>
       </div>
+
+      <fieldset class="lifespan-fieldset">
+        <legend>何歳までを数える？</legend>
+        <div class="lifespan-options">
+          <label><input type="radio" name="lifespan" value="80" checked><span>80歳</span></label>
+          <label><input type="radio" name="lifespan" value="90"><span>90歳</span></label>
+          <label><input type="radio" name="lifespan" value="100"><span>100歳</span></label>
+        </div>
+      </fieldset>
 
       <button id="countButton">数えてみる</button>
     </section>
@@ -83,7 +92,7 @@
     <section id="results" class="results">
       <section id="shareCard" class="share-card">
         <section class="life-summary">
-          <p class="summary-label">80歳までの人生</p>
+          <p id="summaryLabel" class="summary-label">80歳までの人生</p>
 
           <div class="progress-number">
             <span id="lifeProgress">0.0</span><span class="percent">%</span>
@@ -108,6 +117,7 @@
             <div class="counter-content">
               <p class="counter-name">桜の季節</p>
               <p class="counter-number"><span id="cherryBlossoms">0</span><span>回</span></p>
+              <p id="cherryNext" class="counter-next"></p>
             </div>
 
             <div class="counter-info">
@@ -122,6 +132,7 @@
             <div class="counter-content">
               <p class="counter-name">満月</p>
               <p class="counter-number"><span id="fullMoons">0</span><span>回</span></p>
+              <p id="moonNext" class="counter-next"></p>
             </div>
 
             <div class="counter-info">
@@ -136,6 +147,7 @@
             <div class="counter-content">
               <p class="counter-name">ハレー彗星</p>
               <p class="counter-number"><span id="halley">0</span><span>回</span></p>
+              <p id="halleyNext" class="counter-next"></p>
             </div>
 
             <div class="counter-info">
@@ -150,10 +162,11 @@
             <div class="counter-content">
               <p class="counter-name">土曜日</p>
               <p class="counter-number"><span id="saturdays">0</span><span>回</span></p>
+              <p id="saturdayNext" class="counter-next"></p>
             </div>
 
             <div class="counter-info">
-              今日から80歳になる日までの土曜日を数えています。
+              今日から選んだ年齢になる日までの土曜日を数えています。
             </div>
           </article>
 
@@ -164,10 +177,11 @@
             <div class="counter-content">
               <p class="counter-name">朝を迎える</p>
               <p class="counter-number"><span id="mornings">0</span><span>回</span></p>
+              <p id="morningNext" class="counter-next"></p>
             </div>
 
             <div class="counter-info">
-              80歳までの残り日数を、これから迎える朝の回数として概算しています。
+              選んだ年齢までの残り日数を、これから迎える朝の回数として概算しています。
             </div>
           </article>
 
@@ -178,15 +192,52 @@
             <div class="counter-content">
               <p class="counter-name">誕生日</p>
               <p class="counter-number"><span id="birthdays">0</span><span>回</span></p>
+              <p id="birthdayNext" class="counter-next"></p>
             </div>
 
             <div class="counter-info">
-              今年以降、80歳の誕生日までを含めて数えています。
+              今年以降、選んだ年齢の誕生日までを含めて数えています。
             </div>
           </article>
         </section>
 
-        <p class="note">80歳を基準にした、おおよその回数です。</p>
+        <p id="resultNote" class="note">80歳を基準にした、おおよその回数です。</p>
+      </section>
+
+      <section class="time-tools" aria-label="時間の見方">
+        <div class="time-tool future-tool">
+          <div class="tool-heading">
+            <h3>少し先から見る</h3>
+            <output id="futureAgeOutput" for="futureAgeRange">現在</output>
+          </div>
+          <input id="futureAgeRange" type="range" min="0" max="80" value="0" step="1">
+          <p id="futureDateLabel" class="tool-note">今日から見た回数です。</p>
+        </div>
+
+        <div class="time-tool together-tool">
+          <div class="tool-heading">
+            <h3>あと何度、会える？</h3>
+          </div>
+          <div class="together-controls">
+            <input id="personName" type="text" maxlength="20" placeholder="大切な人">
+            <select id="meetingPace" aria-label="会うペース">
+              <option value="7">週に1回</option>
+              <option value="14">2週に1回</option>
+              <option value="30.4375" selected>月に1回</option>
+              <option value="365.2425">年に1回</option>
+            </select>
+          </div>
+          <p class="together-result"><span id="togetherLabel">大切な人と</span><strong id="togetherCount">0</strong><span>回くらい</span></p>
+        </div>
+
+        <div class="time-tool weeks-tool">
+          <div class="tool-heading">
+            <h3>人生を週で見る</h3>
+            <span id="weeksLegend" class="weeks-legend"></span>
+          </div>
+          <canvas id="lifeWeeksCanvas" role="img" aria-label="人生を週単位で表した図"></canvas>
+          <p class="tool-note"><span class="week-dot lived"></span>これまで　<span class="week-dot remaining"></span>これから</p>
+        </div>
       </section>
 
       <section class="share-area">
@@ -228,7 +279,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=13"></script>
+  <script src="script.js?v=14"></script>
 </body>
 
 </html>

@@ -11,6 +11,24 @@ const halleyText = document.getElementById("halley");
 const saturdaysText = document.getElementById("saturdays");
 const morningsText = document.getElementById("mornings");
 const birthdaysText = document.getElementById("birthdays");
+const summaryLabel = document.getElementById("summaryLabel");
+const resultNote = document.getElementById("resultNote");
+const cherryNext = document.getElementById("cherryNext");
+const moonNext = document.getElementById("moonNext");
+const halleyNext = document.getElementById("halleyNext");
+const saturdayNext = document.getElementById("saturdayNext");
+const morningNext = document.getElementById("morningNext");
+const birthdayNext = document.getElementById("birthdayNext");
+const lifespanInputs = document.querySelectorAll('input[name="lifespan"]');
+const futureAgeRange = document.getElementById("futureAgeRange");
+const futureAgeOutput = document.getElementById("futureAgeOutput");
+const futureDateLabel = document.getElementById("futureDateLabel");
+const personName = document.getElementById("personName");
+const meetingPace = document.getElementById("meetingPace");
+const togetherLabel = document.getElementById("togetherLabel");
+const togetherCount = document.getElementById("togetherCount");
+const lifeWeeksCanvas = document.getElementById("lifeWeeksCanvas");
+const weeksLegend = document.getElementById("weeksLegend");
 
 const progressFill = document.getElementById("progressFill");
 const results = document.getElementById("results");
@@ -34,11 +52,18 @@ const eventFormMessage = document.getElementById("eventFormMessage");
 const eventList = document.getElementById("eventList");
 
 const savedBirthdate = localStorage.getItem("birthdate");
+const savedLifespan = Number(localStorage.getItem("lifespan")) || 80;
 const oneDayMs = 1000 * 60 * 60 * 24;
 const eventsStorageKey = "lifeCounterEvents";
 let editingEventId = null;
 let pendingEventImage = null;
 let customEvents = loadCustomEvents();
+let latestLifeData = null;
+
+function getSelectedLifespan() {
+  const selected = document.querySelector('input[name="lifespan"]:checked');
+  return selected ? Number(selected.value) : 80;
+}
 
 function loadCustomEvents() {
   try {
@@ -545,12 +570,13 @@ function getLifeDates(showAlert = true) {
     return null;
   }
 
+  const lifespan = getSelectedLifespan();
   const lifeEndDate = new Date(birthDate);
-  lifeEndDate.setFullYear(lifeEndDate.getFullYear() + 80);
+  lifeEndDate.setFullYear(lifeEndDate.getFullYear() + lifespan);
 
   if (today >= lifeEndDate) {
     if (showAlert) {
-      alert("このアプリは80歳までを基準に計算しています。");
+      alert("選んだ年齢をすでに迎えています。基準を変更してください。");
     }
 
     return null;
@@ -567,14 +593,190 @@ function getLifeDates(showAlert = true) {
     birthdate,
     birthDate,
     today,
-    lifeEndDate
+    lifeEndDate,
+    lifespan
   };
 }
 
-function calculateLife(data) {
-  const { birthdate, birthDate, today, lifeEndDate } = data;
+function daysBetween(from, to) {
+  return Math.max(0, Math.ceil((to - from) / oneDayMs));
+}
 
-  localStorage.setItem("birthdate", birthdate);
+function formatNextLabel(date, referenceDate, prefix = "次は") {
+  const days = daysBetween(referenceDate, date);
+  return days === 0 ? "今日" : prefix + days.toLocaleString() + "日後";
+}
+
+function getNextCherryDate(referenceDate) {
+  const year = referenceDate.getFullYear();
+  const start = new Date(year, 2, 20);
+  const end = new Date(year, 3, 30, 23, 59, 59);
+
+  if (referenceDate >= start && referenceDate <= end) {
+    return null;
+  }
+
+  return referenceDate < start ? start : new Date(year + 1, 2, 20);
+}
+
+function getNextFullMoonDate(referenceDate) {
+  const cycleMs = 29.53059 * oneDayMs;
+  const knownFullMoon = new Date(Date.UTC(2025, 0, 13, 22, 27));
+  const cycles = Math.ceil((referenceDate - knownFullMoon) / cycleMs);
+  return new Date(knownFullMoon.getTime() + Math.max(cycles, 0) * cycleMs);
+}
+
+function getNextBirthdayDate(birthDate, referenceDate) {
+  let next = createClampedAnniversaryDate(
+    birthDate,
+    referenceDate.getFullYear(),
+    birthDate.getMonth()
+  );
+
+  if (next < referenceDate) {
+    next = createClampedAnniversaryDate(
+      birthDate,
+      referenceDate.getFullYear() + 1,
+      birthDate.getMonth()
+    );
+  }
+
+  return next;
+}
+
+function updateNextOccurrenceLabels(birthDate, referenceDate, lifeEndDate) {
+  const nextCherry = getNextCherryDate(referenceDate);
+  cherryNext.textContent = nextCherry === null ? "いま桜の季節" : formatNextLabel(nextCherry, referenceDate);
+
+  const nextMoon = getNextFullMoonDate(referenceDate);
+  moonNext.textContent = nextMoon <= lifeEndDate ? formatNextLabel(nextMoon, referenceDate) : "";
+
+  const nextHalley = new Date(2061, 6, 28);
+  halleyNext.textContent = nextHalley >= referenceDate && nextHalley <= lifeEndDate
+    ? formatNextLabel(nextHalley, referenceDate)
+    : "次回は2061年";
+
+  const nextSaturday = new Date(referenceDate);
+  nextSaturday.setHours(0, 0, 0, 0);
+  nextSaturday.setDate(nextSaturday.getDate() + ((6 - nextSaturday.getDay() + 7) % 7));
+  saturdayNext.textContent = formatNextLabel(nextSaturday, referenceDate);
+
+  const tomorrow = new Date(referenceDate);
+  tomorrow.setHours(0, 0, 0, 0);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  morningNext.textContent = formatNextLabel(tomorrow, referenceDate);
+
+  const nextBirthday = getNextBirthdayDate(birthDate, referenceDate);
+  birthdayNext.textContent = nextBirthday <= lifeEndDate ? formatNextLabel(nextBirthday, referenceDate) : "";
+}
+
+function getAgeOnDate(birthDate, date) {
+  let age = date.getFullYear() - birthDate.getFullYear();
+  const birthdayThisYear = createClampedAnniversaryDate(
+    birthDate,
+    date.getFullYear(),
+    birthDate.getMonth()
+  );
+
+  if (date < birthdayThisYear) {
+    age--;
+  }
+
+  return Math.max(age, 0);
+}
+
+function drawLifeWeeks(birthDate, referenceDate, lifespan) {
+  const columns = 52;
+  const rows = lifespan;
+  const gap = 2;
+  const dot = 6;
+  const width = columns * (dot + gap) - gap;
+  const height = rows * (dot + gap) - gap;
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  const context = lifeWeeksCanvas.getContext("2d");
+  const elapsedWeeks = Math.max(0, Math.floor((referenceDate - birthDate) / (oneDayMs * 7)));
+  const totalWeeks = rows * columns;
+
+  lifeWeeksCanvas.width = width * ratio;
+  lifeWeeksCanvas.height = height * ratio;
+  lifeWeeksCanvas.style.aspectRatio = width + " / " + height;
+  context.scale(ratio, ratio);
+  context.clearRect(0, 0, width, height);
+
+  for (let week = 0; week < totalWeeks; week++) {
+    const x = (week % columns) * (dot + gap);
+    const y = Math.floor(week / columns) * (dot + gap);
+    context.fillStyle = week < elapsedWeeks ? "#a56f50" : "rgba(123, 119, 112, 0.2)";
+    context.beginPath();
+
+    if (typeof context.roundRect === "function") {
+      context.roundRect(x, y, dot, dot, 1.5);
+    } else {
+      context.rect(x, y, dot, dot);
+    }
+
+    context.fill();
+  }
+
+  lifeWeeksCanvas.setAttribute(
+    "aria-label",
+    lifespan + "年間の約" + totalWeeks.toLocaleString() + "週のうち、約" +
+      Math.min(elapsedWeeks, totalWeeks).toLocaleString() + "週が経過した図"
+  );
+  weeksLegend.textContent = lifespan + "年 = 約" + totalWeeks.toLocaleString() + "週";
+}
+
+function updateTogetherCount(referenceDate, lifeEndDate) {
+  const pace = Number(meetingPace.value);
+  const name = personName.value.trim();
+  const count = Math.max(0, Math.floor(daysBetween(referenceDate, lifeEndDate) / pace));
+  togetherLabel.textContent = name ? name + "と" : "大切な人と";
+  togetherCount.textContent = count.toLocaleString();
+  localStorage.setItem("meetingPerson", name);
+  localStorage.setItem("meetingPace", meetingPace.value);
+}
+
+function setupFutureRange(data) {
+  const currentAge = getAgeOnDate(data.birthDate, new Date());
+  futureAgeRange.min = currentAge;
+  futureAgeRange.max = data.lifespan;
+  futureAgeRange.value = currentAge;
+  futureAgeOutput.textContent = "現在";
+  futureDateLabel.textContent = "今日から見た回数です。";
+}
+
+function handleFutureAgeInput() {
+  if (latestLifeData === null) {
+    return;
+  }
+
+  const age = Number(futureAgeRange.value);
+  const currentAge = getAgeOnDate(latestLifeData.birthDate, new Date());
+  let referenceDate = new Date();
+
+  if (age > currentAge) {
+    referenceDate = createClampedAnniversaryDate(
+      latestLifeData.birthDate,
+      latestLifeData.birthDate.getFullYear() + age,
+      latestLifeData.birthDate.getMonth()
+    );
+  }
+
+  futureAgeOutput.textContent = age === currentAge ? "現在" : age + "歳";
+  futureDateLabel.textContent = age === currentAge
+    ? "今日から見た回数です。"
+    : referenceDate.getFullYear() + "年の自分から見た回数です。";
+  calculateLife({ ...latestLifeData, today: referenceDate }, false);
+}
+
+function calculateLife(data, saveState = true) {
+  const { birthdate, birthDate, today, lifeEndDate, lifespan } = data;
+
+  if (saveState) {
+    localStorage.setItem("birthdate", birthdate);
+    localStorage.setItem("lifespan", lifespan);
+    latestLifeData = data;
+  }
 
   const elapsedLifeMs = today - birthDate;
   const totalLifeMs = lifeEndDate - birthDate;
@@ -650,6 +852,12 @@ function calculateLife(data) {
   morningsText.textContent = morningCount.toLocaleString();
   birthdaysText.textContent = birthdayCount.toLocaleString();
 
+  summaryLabel.textContent = lifespan + "歳までの人生";
+  resultNote.textContent = lifespan + "歳を基準にした、おおよその回数です。";
+  updateNextOccurrenceLabels(birthDate, today, lifeEndDate);
+  updateTogetherCount(today, lifeEndDate);
+  drawLifeWeeks(birthDate, today, lifespan);
+
   const progress = Math.min(Math.max(lifeProgress, 0), 100);
   progressFill.style.width = progress + "%";
 }
@@ -685,63 +893,9 @@ function waitForAnimationFrame() {
 }
 
 function runHourglassAnimation() {
-  const topSand = loadingOverlay.querySelector(".hourglass-sand-top");
-  const bottomSand = loadingOverlay.querySelector(".hourglass-sand-bottom");
-  const stream = loadingOverlay.querySelector(".hourglass-stream");
-  const duration = 1800;
-
-  [topSand, bottomSand, stream].forEach(function (element) {
-    const runningAnimations =
-      typeof element.getAnimations === "function" ? element.getAnimations() : [];
-
-    runningAnimations.forEach(function (animation) {
-      animation.cancel();
-    });
+  return new Promise(function (resolve) {
+    setTimeout(resolve, 2200);
   });
-
-  if (typeof topSand.animate !== "function") {
-    return new Promise(function (resolve) {
-      setTimeout(resolve, duration);
-    });
-  }
-
-  const timing = {
-    duration,
-    easing: "linear",
-    fill: "forwards"
-  };
-
-  const animations = [
-    topSand.animate(
-      [
-        { transform: "scaleY(1)" },
-        { transform: "scaleY(0.04)" }
-      ],
-      timing
-    ),
-    bottomSand.animate(
-      [
-        { transform: "scaleY(0.08)" },
-        { transform: "scaleY(1)" }
-      ],
-      timing
-    ),
-    stream.animate(
-      [
-        { opacity: 0, transform: "scaleY(0.15)", offset: 0 },
-        { opacity: 1, transform: "scaleY(1)", offset: 0.08 },
-        { opacity: 1, transform: "scaleY(1)", offset: 0.88 },
-        { opacity: 0, transform: "scaleY(0)", offset: 1 }
-      ],
-      timing
-    )
-  ];
-
-  return Promise.all(
-    animations.map(function (animation) {
-      return animation.finished.catch(function () {});
-    })
-  );
 }
 
 async function handleCountClick() {
@@ -761,6 +915,7 @@ async function handleCountClick() {
   await runHourglassAnimation();
 
   calculateLife(data);
+  setupFutureRange(data);
   results.classList.add("show");
   loadingOverlay.classList.remove("show");
   loadingOverlay.setAttribute("aria-hidden", "true");
@@ -779,8 +934,9 @@ async function handleCountClick() {
 }
 
 function getShareText() {
+  const lifespan = getSelectedLifespan();
   return (
-    "人生消化率 " +
+    lifespan + "歳までの人生 " +
     lifeProgressText.textContent +
     "%\n\n" +
     "🌸 桜の季節 あと" +
@@ -869,6 +1025,7 @@ async function createShareCanvas() {
   const width = 1080;
   const height = 1350;
   const padding = 64;
+  const lifespan = getSelectedLifespan();
 
   canvas.width = width;
   canvas.height = height;
@@ -894,7 +1051,7 @@ async function createShareCanvas() {
 
   context.fillStyle = "#7b7770";
   context.font = "500 25px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
-  context.fillText("80歳を基準に計算", 160, 116);
+  context.fillText(lifespan + "歳を基準に計算", 160, 116);
 
   drawRoundedRect(context, padding, 164, width - padding * 2, 336, 36);
   context.fillStyle = "#34312e";
@@ -902,7 +1059,7 @@ async function createShareCanvas() {
 
   context.fillStyle = "#ffffff";
   context.font = "700 30px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
-  context.fillText("80歳までの人生", 112, 216);
+  context.fillText(lifespan + "歳までの人生", 112, 216);
 
   const progress = Math.min(Math.max(Number(lifeProgressText.textContent), 0), 100);
   const progressLabel = lifeProgressText.textContent;
@@ -935,7 +1092,7 @@ async function createShareCanvas() {
 
   context.fillStyle = "#7b7770";
   context.font = "500 24px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
-  context.fillText("80歳までの、おおよその回数", padding, 613);
+  context.fillText(lifespan + "歳までの、おおよその回数", padding, 613);
 
   const counters = [
     { icon: "🌸", name: "桜の季節", value: cherryBlossomsText.textContent },
@@ -982,7 +1139,7 @@ async function createShareCanvas() {
 
   context.fillStyle = "#7b7770";
   context.font = "500 22px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
-  context.fillText("80歳を基準にした目安です。", padding, 1232);
+  context.fillText(lifespan + "歳を基準にした目安です。", padding, 1232);
 
   context.fillStyle = "#302e2b";
   context.font = "700 23px -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif";
@@ -1105,6 +1262,31 @@ function setupInfoButtons() {
 
 birthYear.addEventListener("change", updateDayOptions);
 birthMonth.addEventListener("change", updateDayOptions);
+lifespanInputs.forEach(function (input) {
+  input.addEventListener("change", function () {
+    if (!results.classList.contains("show")) {
+      return;
+    }
+
+    const data = getLifeDates(false);
+
+    if (data !== null) {
+      calculateLife(data);
+      setupFutureRange(data);
+    }
+  });
+});
+futureAgeRange.addEventListener("input", handleFutureAgeInput);
+personName.addEventListener("input", function () {
+  if (latestLifeData !== null) {
+    handleFutureAgeInput();
+  }
+});
+meetingPace.addEventListener("change", function () {
+  if (latestLifeData !== null) {
+    handleFutureAgeInput();
+  }
+});
 countButton.addEventListener("click", handleCountClick);
 xShareButton.addEventListener("click", shareToX);
 lineShareButton.addEventListener("click", shareToLine);
@@ -1129,6 +1311,20 @@ createBirthdateOptions();
 setupInfoButtons();
 renderCustomEvents();
 
+const savedLifespanInput = document.querySelector('input[name="lifespan"][value="' + savedLifespan + '"]');
+
+if (savedLifespanInput) {
+  savedLifespanInput.checked = true;
+}
+
+personName.value = localStorage.getItem("meetingPerson") || "";
+
+const savedMeetingPace = localStorage.getItem("meetingPace");
+
+if (savedMeetingPace && meetingPace.querySelector('option[value="' + savedMeetingPace + '"]')) {
+  meetingPace.value = savedMeetingPace;
+}
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("./sw.js").catch(function (error) {
@@ -1152,6 +1348,7 @@ if (savedBirthdate !== null) {
 
     if (savedData !== null) {
       calculateLife(savedData);
+      setupFutureRange(savedData);
       results.classList.add("show");
       revealCards(false);
     }
